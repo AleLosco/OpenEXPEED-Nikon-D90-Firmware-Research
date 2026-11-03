@@ -1,0 +1,2900 @@
+[
+  {
+    "sample": "D90_0101.bin",
+    "size": 7864322,
+    "sha256": "623906f285c656a7c6e4f3cecd26bc5e2b6da38ba07f0cc76a235f7e524814af",
+    "analysis": {
+      "markers": [
+        {
+          "offset": 8,
+          "text": "D90  Firmware A Copyright Nikon Corp."
+        },
+        {
+          "offset": 2141258,
+          "text": "Ver.1.01a D90  2014/07/18 This version is not tested"
+        }
+      ],
+      "a_serial_receiver": {
+        "port": 100,
+        "dispatch_offset": 16354,
+        "delimiter": "$",
+        "character_tests": [
+          {
+            "first_position": 3,
+            "text": "RMC"
+          },
+          {
+            "first_position": 3,
+            "text": "GGA"
+          },
+          {
+            "first_position": 1,
+            "text": "PGRMM"
+          },
+          {
+            "first_position": 3,
+            "text": "HDG"
+          }
+        ]
+      },
+      "a_channels": {
+        "file_to_cpu_delta": 524288,
+        "mapped_size": 524288,
+        "reset_cpu": 1032206,
+        "vector_base_cpu": 1047552,
+        "vectors": [
+          {
+            "index": 233,
+            "target_cpu": 529354
+          },
+          {
+            "index": 234,
+            "target_cpu": 529310
+          },
+          {
+            "index": 235,
+            "target_cpu": 526500
+          }
+        ],
+        "receive_callback_installations": [
+          {
+            "installation_cpu": 540442,
+            "callback_cpu": 540530,
+            "slot_cpu": 221340
+          },
+          {
+            "installation_cpu": 544214,
+            "callback_cpu": 545206,
+            "slot_cpu": 221340
+          },
+          {
+            "installation_cpu": 544652,
+            "callback_cpu": 545028,
+            "slot_cpu": 221340
+          },
+          {
+            "installation_cpu": 556220,
+            "callback_cpu": 556264,
+            "slot_cpu": 221340
+          }
+        ],
+        "port64_buffer_pointer_cpu": 221704,
+        "port84_read_cpu": 706686,
+        "scope": "Static map and callback selection; physical peer and B index 0x46 unresolved"
+      },
+      "a_commands": {
+        "table_cpu": 925652,
+        "stride": 12,
+        "entry_count": 52,
+        "lookup_cpu": 544886,
+        "handler_dispatch_cpu": 544306,
+        "mode_flags_cpu": 224696,
+        "command_enable_mask": 32,
+        "handshake_word": 21331,
+        "entries": [
+          {
+            "index": 0,
+            "key": 16722,
+            "descriptor": 4,
+            "initial_count": 4,
+            "variable_length_phase": false,
+            "callback_cpu": 545914,
+            "argument_u16": 1,
+            "trailing_u16": 0
+          },
+          {
+            "index": 1,
+            "key": 16724,
+            "descriptor": 32772,
+            "initial_count": 4,
+            "variable_length_phase": true,
+            "callback_cpu": 545976,
+            "argument_u16": 1,
+            "trailing_u16": 0
+          },
+          {
+            "index": 2,
+            "key": 16725,
+            "descriptor": 3,
+            "initial_count": 3,
+            "variable_length_phase": false,
+            "callback_cpu": 546036,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 3,
+            "key": 16727,
+            "descriptor": 32771,
+            "initial_count": 3,
+            "variable_length_phase": true,
+            "callback_cpu": 546158,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 4,
+            "key": 16729,
+            "descriptor": 4,
+            "initial_count": 4,
+            "variable_length_phase": false,
+            "callback_cpu": 546276,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 5,
+            "key": 16737,
+            "descriptor": 4,
+            "initial_count": 4,
+            "variable_length_phase": false,
+            "callback_cpu": 546406,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 6,
+            "key": 16739,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 550412,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 7,
+            "key": 16741,
+            "descriptor": 1,
+            "initial_count": 1,
+            "variable_length_phase": false,
+            "callback_cpu": 550594,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 8,
+            "key": 17233,
+            "descriptor": 3,
+            "initial_count": 3,
+            "variable_length_phase": false,
+            "callback_cpu": 546538,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 9,
+            "key": 17241,
+            "descriptor": 1,
+            "initial_count": 1,
+            "variable_length_phase": false,
+            "callback_cpu": 547518,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 10,
+            "key": 17747,
+            "descriptor": 1,
+            "initial_count": 1,
+            "variable_length_phase": false,
+            "callback_cpu": 547530,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 11,
+            "key": 18241,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 548026,
+            "argument_u16": 128,
+            "trailing_u16": 0
+          },
+          {
+            "index": 12,
+            "key": 18243,
+            "descriptor": 5,
+            "initial_count": 5,
+            "variable_length_phase": false,
+            "callback_cpu": 548126,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 13,
+            "key": 18245,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 548180,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 14,
+            "key": 18247,
+            "descriptor": 1,
+            "initial_count": 1,
+            "variable_length_phase": false,
+            "callback_cpu": 548284,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 15,
+            "key": 18267,
+            "descriptor": 2,
+            "initial_count": 2,
+            "variable_length_phase": false,
+            "callback_cpu": 547762,
+            "argument_u16": 4230,
+            "trailing_u16": 0
+          },
+          {
+            "index": 16,
+            "key": 18269,
+            "descriptor": 2,
+            "initial_count": 2,
+            "variable_length_phase": false,
+            "callback_cpu": 547762,
+            "argument_u16": 134,
+            "trailing_u16": 0
+          },
+          {
+            "index": 17,
+            "key": 18271,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 548026,
+            "argument_u16": 133,
+            "trailing_u16": 0
+          },
+          {
+            "index": 18,
+            "key": 18273,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 548026,
+            "argument_u16": 129,
+            "trailing_u16": 0
+          },
+          {
+            "index": 19,
+            "key": 18275,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 548026,
+            "argument_u16": 130,
+            "trailing_u16": 0
+          },
+          {
+            "index": 20,
+            "key": 18277,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 548026,
+            "argument_u16": 131,
+            "trailing_u16": 0
+          },
+          {
+            "index": 21,
+            "key": 18279,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 548026,
+            "argument_u16": 132,
+            "trailing_u16": 0
+          },
+          {
+            "index": 22,
+            "key": 18285,
+            "descriptor": 1,
+            "initial_count": 1,
+            "variable_length_phase": false,
+            "callback_cpu": 548354,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 23,
+            "key": 18287,
+            "descriptor": 5,
+            "initial_count": 5,
+            "variable_length_phase": false,
+            "callback_cpu": 548354,
+            "argument_u16": 1,
+            "trailing_u16": 0
+          },
+          {
+            "index": 24,
+            "key": 18289,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 548740,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 25,
+            "key": 18291,
+            "descriptor": 2,
+            "initial_count": 2,
+            "variable_length_phase": false,
+            "callback_cpu": 548354,
+            "argument_u16": 2,
+            "trailing_u16": 0
+          },
+          {
+            "index": 26,
+            "key": 18293,
+            "descriptor": 4,
+            "initial_count": 4,
+            "variable_length_phase": false,
+            "callback_cpu": 548354,
+            "argument_u16": 3,
+            "trailing_u16": 0
+          },
+          {
+            "index": 27,
+            "key": 18295,
+            "descriptor": 2,
+            "initial_count": 2,
+            "variable_length_phase": false,
+            "callback_cpu": 548968,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 28,
+            "key": 18305,
+            "descriptor": 2,
+            "initial_count": 2,
+            "variable_length_phase": false,
+            "callback_cpu": 548026,
+            "argument_u16": 144,
+            "trailing_u16": 0
+          },
+          {
+            "index": 29,
+            "key": 18307,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 549130,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 30,
+            "key": 18313,
+            "descriptor": 2,
+            "initial_count": 2,
+            "variable_length_phase": false,
+            "callback_cpu": 548026,
+            "argument_u16": 145,
+            "trailing_u16": 0
+          },
+          {
+            "index": 31,
+            "key": 18323,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 548026,
+            "argument_u16": 147,
+            "trailing_u16": 0
+          },
+          {
+            "index": 32,
+            "key": 18325,
+            "descriptor": 1,
+            "initial_count": 1,
+            "variable_length_phase": false,
+            "callback_cpu": 548026,
+            "argument_u16": 146,
+            "trailing_u16": 0
+          },
+          {
+            "index": 33,
+            "key": 18327,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 549236,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 34,
+            "key": 18329,
+            "descriptor": 1,
+            "initial_count": 1,
+            "variable_length_phase": false,
+            "callback_cpu": 549332,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 35,
+            "key": 18331,
+            "descriptor": 1,
+            "initial_count": 1,
+            "variable_length_phase": false,
+            "callback_cpu": 549378,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 36,
+            "key": 18333,
+            "descriptor": 2,
+            "initial_count": 2,
+            "variable_length_phase": false,
+            "callback_cpu": 549496,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 37,
+            "key": 18339,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 550642,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 38,
+            "key": 18341,
+            "descriptor": 1,
+            "initial_count": 1,
+            "variable_length_phase": false,
+            "callback_cpu": 550150,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 39,
+            "key": 19777,
+            "descriptor": 3,
+            "initial_count": 3,
+            "variable_length_phase": false,
+            "callback_cpu": 549588,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 40,
+            "key": 19778,
+            "descriptor": 4,
+            "initial_count": 4,
+            "variable_length_phase": false,
+            "callback_cpu": 549588,
+            "argument_u16": 1,
+            "trailing_u16": 0
+          },
+          {
+            "index": 41,
+            "key": 19779,
+            "descriptor": 32771,
+            "initial_count": 3,
+            "variable_length_phase": true,
+            "callback_cpu": 549588,
+            "argument_u16": 2,
+            "trailing_u16": 0
+          },
+          {
+            "index": 42,
+            "key": 19780,
+            "descriptor": 32772,
+            "initial_count": 4,
+            "variable_length_phase": true,
+            "callback_cpu": 549588,
+            "argument_u16": 3,
+            "trailing_u16": 0
+          },
+          {
+            "index": 43,
+            "key": 19785,
+            "descriptor": 1,
+            "initial_count": 1,
+            "variable_length_phase": false,
+            "callback_cpu": 549588,
+            "argument_u16": 5,
+            "trailing_u16": 0
+          },
+          {
+            "index": 44,
+            "key": 21331,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 550006,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 45,
+            "key": 20817,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 549992,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 46,
+            "key": 21841,
+            "descriptor": 1,
+            "initial_count": 1,
+            "variable_length_phase": false,
+            "callback_cpu": 550014,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 47,
+            "key": 21843,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 550090,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 48,
+            "key": 21845,
+            "descriptor": 1,
+            "initial_count": 1,
+            "variable_length_phase": false,
+            "callback_cpu": 550112,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 49,
+            "key": 29025,
+            "descriptor": 1,
+            "initial_count": 1,
+            "variable_length_phase": false,
+            "callback_cpu": 553834,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 50,
+            "key": 29027,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 550410,
+            "argument_u16": 0,
+            "trailing_u16": 0
+          },
+          {
+            "index": 51,
+            "key": 39169,
+            "descriptor": 0,
+            "initial_count": 0,
+            "variable_length_phase": false,
+            "callback_cpu": 550642,
+            "argument_u16": 1,
+            "trailing_u16": 0
+          }
+        ],
+        "scope": "One A command table; no established mapping to B descriptor indices"
+      },
+      "b_transaction": {
+        "descriptor_table_cpu": 1851300,
+        "descriptor_stride": 16,
+        "descriptor_count": 71,
+        "descriptors": [
+          {
+            "index": 0,
+            "descriptor_cpu": 1851300,
+            "data_cpu": 0,
+            "size_field": 0,
+            "type_field": 2,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 1,
+            "descriptor_cpu": 1851316,
+            "data_cpu": 2404577903,
+            "size_field": 3,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 2,
+            "descriptor_cpu": 1851332,
+            "data_cpu": 2404577897,
+            "size_field": 6,
+            "type_field": 0,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 3,
+            "descriptor_cpu": 1851348,
+            "data_cpu": 2404577887,
+            "size_field": 10,
+            "type_field": 0,
+            "callback_cpu": 1115246
+          },
+          {
+            "index": 4,
+            "descriptor_cpu": 1851364,
+            "data_cpu": 2404577864,
+            "size_field": 23,
+            "type_field": 0,
+            "callback_cpu": 1115382
+          },
+          {
+            "index": 5,
+            "descriptor_cpu": 1851380,
+            "data_cpu": 2404577806,
+            "size_field": 35,
+            "type_field": 1,
+            "callback_cpu": 1115430
+          },
+          {
+            "index": 6,
+            "descriptor_cpu": 1851396,
+            "data_cpu": 2404577771,
+            "size_field": 35,
+            "type_field": 0,
+            "callback_cpu": 1115522
+          },
+          {
+            "index": 7,
+            "descriptor_cpu": 1851412,
+            "data_cpu": 2404577752,
+            "size_field": 19,
+            "type_field": 1,
+            "callback_cpu": 1115920
+          },
+          {
+            "index": 8,
+            "descriptor_cpu": 1851428,
+            "data_cpu": 2404577733,
+            "size_field": 19,
+            "type_field": 0,
+            "callback_cpu": 1116210
+          },
+          {
+            "index": 9,
+            "descriptor_cpu": 1851444,
+            "data_cpu": 2404577727,
+            "size_field": 6,
+            "type_field": 1,
+            "callback_cpu": 1116848
+          },
+          {
+            "index": 10,
+            "descriptor_cpu": 1851460,
+            "data_cpu": 2404576672,
+            "size_field": 8,
+            "type_field": 0,
+            "callback_cpu": 1116862
+          },
+          {
+            "index": 11,
+            "descriptor_cpu": 1851476,
+            "data_cpu": 2404577722,
+            "size_field": 5,
+            "type_field": 1,
+            "callback_cpu": 1116892
+          },
+          {
+            "index": 12,
+            "descriptor_cpu": 1851492,
+            "data_cpu": 2404577718,
+            "size_field": 4,
+            "type_field": 0,
+            "callback_cpu": 1117010
+          },
+          {
+            "index": 13,
+            "descriptor_cpu": 1851508,
+            "data_cpu": 2404577717,
+            "size_field": 1,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 14,
+            "descriptor_cpu": 1851524,
+            "data_cpu": 2404577714,
+            "size_field": 3,
+            "type_field": 0,
+            "callback_cpu": 1117414
+          },
+          {
+            "index": 15,
+            "descriptor_cpu": 1851540,
+            "data_cpu": 0,
+            "size_field": 0,
+            "type_field": 2,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 16,
+            "descriptor_cpu": 1851556,
+            "data_cpu": 2404576744,
+            "size_field": 2,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 17,
+            "descriptor_cpu": 1851572,
+            "data_cpu": 2404576660,
+            "size_field": 12,
+            "type_field": 0,
+            "callback_cpu": 1117556
+          },
+          {
+            "index": 18,
+            "descriptor_cpu": 1851588,
+            "data_cpu": 2404577706,
+            "size_field": 8,
+            "type_field": 1,
+            "callback_cpu": 1117834
+          },
+          {
+            "index": 19,
+            "descriptor_cpu": 1851604,
+            "data_cpu": 2404577693,
+            "size_field": 13,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 20,
+            "descriptor_cpu": 1851620,
+            "data_cpu": 2404577680,
+            "size_field": 13,
+            "type_field": 0,
+            "callback_cpu": 1117844
+          },
+          {
+            "index": 21,
+            "descriptor_cpu": 1851636,
+            "data_cpu": 2404577662,
+            "size_field": 18,
+            "type_field": 0,
+            "callback_cpu": 1118296
+          },
+          {
+            "index": 22,
+            "descriptor_cpu": 1851652,
+            "data_cpu": 2404577658,
+            "size_field": 4,
+            "type_field": 0,
+            "callback_cpu": 1118396
+          },
+          {
+            "index": 23,
+            "descriptor_cpu": 1851668,
+            "data_cpu": 2404577657,
+            "size_field": 1,
+            "type_field": 1,
+            "callback_cpu": 1118406
+          },
+          {
+            "index": 24,
+            "descriptor_cpu": 1851684,
+            "data_cpu": 2404577655,
+            "size_field": 2,
+            "type_field": 0,
+            "callback_cpu": 1118408
+          },
+          {
+            "index": 25,
+            "descriptor_cpu": 1851700,
+            "data_cpu": 2404577654,
+            "size_field": 1,
+            "type_field": 0,
+            "callback_cpu": 1118642
+          },
+          {
+            "index": 26,
+            "descriptor_cpu": 1851716,
+            "data_cpu": 2404577641,
+            "size_field": 13,
+            "type_field": 0,
+            "callback_cpu": 1118740
+          },
+          {
+            "index": 27,
+            "descriptor_cpu": 1851732,
+            "data_cpu": 2404577521,
+            "size_field": 120,
+            "type_field": 0,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 28,
+            "descriptor_cpu": 1851748,
+            "data_cpu": 2404577519,
+            "size_field": 2,
+            "type_field": 0,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 29,
+            "descriptor_cpu": 1851764,
+            "data_cpu": 0,
+            "size_field": 0,
+            "type_field": 0,
+            "callback_cpu": 1118742
+          },
+          {
+            "index": 30,
+            "descriptor_cpu": 1851780,
+            "data_cpu": 2404577518,
+            "size_field": 1,
+            "type_field": 1,
+            "callback_cpu": 1118850
+          },
+          {
+            "index": 31,
+            "descriptor_cpu": 1851796,
+            "data_cpu": 2404577263,
+            "size_field": 255,
+            "type_field": 2,
+            "callback_cpu": 1118872
+          },
+          {
+            "index": 32,
+            "descriptor_cpu": 1851812,
+            "data_cpu": 2404577008,
+            "size_field": 255,
+            "type_field": 2,
+            "callback_cpu": 1118888
+          },
+          {
+            "index": 33,
+            "descriptor_cpu": 1851828,
+            "data_cpu": 2404577007,
+            "size_field": 1,
+            "type_field": 1,
+            "callback_cpu": 1118904
+          },
+          {
+            "index": 34,
+            "descriptor_cpu": 1851844,
+            "data_cpu": 2404576544,
+            "size_field": 116,
+            "type_field": 0,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 35,
+            "descriptor_cpu": 1851860,
+            "data_cpu": 2404576987,
+            "size_field": 20,
+            "type_field": 0,
+            "callback_cpu": 1118920
+          },
+          {
+            "index": 36,
+            "descriptor_cpu": 1851876,
+            "data_cpu": 2404576946,
+            "size_field": 21,
+            "type_field": 0,
+            "callback_cpu": 1118922
+          },
+          {
+            "index": 37,
+            "descriptor_cpu": 1851892,
+            "data_cpu": 2404576901,
+            "size_field": 45,
+            "type_field": 0,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 38,
+            "descriptor_cpu": 1851908,
+            "data_cpu": 2404576871,
+            "size_field": 30,
+            "type_field": 0,
+            "callback_cpu": 1119282
+          },
+          {
+            "index": 39,
+            "descriptor_cpu": 1851924,
+            "data_cpu": 2404576834,
+            "size_field": 37,
+            "type_field": 0,
+            "callback_cpu": 1119344
+          },
+          {
+            "index": 40,
+            "descriptor_cpu": 1851940,
+            "data_cpu": 2404576832,
+            "size_field": 2,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 41,
+            "descriptor_cpu": 1851956,
+            "data_cpu": 2404576829,
+            "size_field": 3,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 42,
+            "descriptor_cpu": 1851972,
+            "data_cpu": 2404576826,
+            "size_field": 3,
+            "type_field": 0,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 43,
+            "descriptor_cpu": 1851988,
+            "data_cpu": 2404576815,
+            "size_field": 11,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 44,
+            "descriptor_cpu": 1852004,
+            "data_cpu": 2404576804,
+            "size_field": 11,
+            "type_field": 0,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 45,
+            "descriptor_cpu": 1852020,
+            "data_cpu": 2404576765,
+            "size_field": 39,
+            "type_field": 0,
+            "callback_cpu": 1119354
+          },
+          {
+            "index": 46,
+            "descriptor_cpu": 1852036,
+            "data_cpu": 2404576352,
+            "size_field": 64,
+            "type_field": 0,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 47,
+            "descriptor_cpu": 1852052,
+            "data_cpu": 2404576416,
+            "size_field": 64,
+            "type_field": 0,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 48,
+            "descriptor_cpu": 1852068,
+            "data_cpu": 2404576480,
+            "size_field": 64,
+            "type_field": 0,
+            "callback_cpu": 1119446
+          },
+          {
+            "index": 49,
+            "descriptor_cpu": 1852084,
+            "data_cpu": 2404576764,
+            "size_field": 1,
+            "type_field": 1,
+            "callback_cpu": 1116974
+          },
+          {
+            "index": 50,
+            "descriptor_cpu": 1852100,
+            "data_cpu": 2404576761,
+            "size_field": 3,
+            "type_field": 0,
+            "callback_cpu": 1118560
+          },
+          {
+            "index": 51,
+            "descriptor_cpu": 1852116,
+            "data_cpu": 2404576758,
+            "size_field": 3,
+            "type_field": 1,
+            "callback_cpu": 1119514
+          },
+          {
+            "index": 52,
+            "descriptor_cpu": 1852132,
+            "data_cpu": 2404576757,
+            "size_field": 1,
+            "type_field": 0,
+            "callback_cpu": 1119516
+          },
+          {
+            "index": 53,
+            "descriptor_cpu": 1852148,
+            "data_cpu": 2404576756,
+            "size_field": 1,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 54,
+            "descriptor_cpu": 1852164,
+            "data_cpu": 2404576755,
+            "size_field": 1,
+            "type_field": 0,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 55,
+            "descriptor_cpu": 1852180,
+            "data_cpu": 2404576754,
+            "size_field": 1,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 56,
+            "descriptor_cpu": 1852196,
+            "data_cpu": 2404576742,
+            "size_field": 2,
+            "type_field": 0,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 57,
+            "descriptor_cpu": 1852212,
+            "data_cpu": 2404576753,
+            "size_field": 1,
+            "type_field": 0,
+            "callback_cpu": 1119678
+          },
+          {
+            "index": 58,
+            "descriptor_cpu": 1852228,
+            "data_cpu": 2404576336,
+            "size_field": 16,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 59,
+            "descriptor_cpu": 1852244,
+            "data_cpu": 2404576751,
+            "size_field": 2,
+            "type_field": 0,
+            "callback_cpu": 1120082
+          },
+          {
+            "index": 60,
+            "descriptor_cpu": 1852260,
+            "data_cpu": 2404576332,
+            "size_field": 4,
+            "type_field": 0,
+            "callback_cpu": 1120480
+          },
+          {
+            "index": 61,
+            "descriptor_cpu": 1852276,
+            "data_cpu": 2404576216,
+            "size_field": 116,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 62,
+            "descriptor_cpu": 1852292,
+            "data_cpu": 2404576184,
+            "size_field": 32,
+            "type_field": 0,
+            "callback_cpu": 1120170
+          },
+          {
+            "index": 63,
+            "descriptor_cpu": 1852308,
+            "data_cpu": 0,
+            "size_field": 0,
+            "type_field": 0,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 64,
+            "descriptor_cpu": 1852324,
+            "data_cpu": 2404576740,
+            "size_field": 2,
+            "type_field": 0,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 65,
+            "descriptor_cpu": 1852340,
+            "data_cpu": 2404576736,
+            "size_field": 4,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 66,
+            "descriptor_cpu": 1852356,
+            "data_cpu": 2404576732,
+            "size_field": 4,
+            "type_field": 0,
+            "callback_cpu": 1120524
+          },
+          {
+            "index": 67,
+            "descriptor_cpu": 1852372,
+            "data_cpu": 2404576730,
+            "size_field": 2,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 68,
+            "descriptor_cpu": 1852388,
+            "data_cpu": 0,
+            "size_field": 0,
+            "type_field": 2,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 69,
+            "descriptor_cpu": 1852404,
+            "data_cpu": 2404576680,
+            "size_field": 50,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          },
+          {
+            "index": 70,
+            "descriptor_cpu": 1852420,
+            "data_cpu": 2404576750,
+            "size_field": 1,
+            "type_field": 1,
+            "callback_cpu": 1115244
+          }
+        ],
+        "state_handlers_0_to_13": [
+          1120536,
+          1120538,
+          1120568,
+          1120632,
+          1120708,
+          1120796,
+          1120892,
+          1120990,
+          1121012,
+          1121096,
+          1121184,
+          1121214,
+          1121292,
+          1121378
+        ],
+        "data_port": 100,
+        "request_byte_cpu": 2404579324,
+        "initial_reply_cpu": 2404579323,
+        "state_cpu": 2404579326,
+        "tx_sum_cpu": 2404579316,
+        "rx_sum_cpu": 2404579317,
+        "rx_buffer_cpu": 2404578804,
+        "accepted_sum_low_byte": 255,
+        "completion_event": 16,
+        "error_event": 32,
+        "descriptor_type_1_zero_reply_first_state": 8,
+        "descriptor_type_1_nonzero_reply_first_state": 2,
+        "scope": "Static observations; bounded replay in D90BTransaction.java; physical peer unknown"
+      },
+      "a_transport": {
+        "d4_receive": {
+          "entry_cpu": 564018,
+          "read_cpu": 564052,
+          "data_port": 212,
+          "status_port": 210,
+          "error_mask": 8,
+          "callback_slot_cpu": 221464,
+          "buffer_pointer_cpu": 226176,
+          "count_cpu": 223436,
+          "delay_counter_cpu": 226184,
+          "ordinary_delay_count": 1,
+          "special_delay_count": 5000,
+          "error_event": 32768
+        },
+        "additional_polling_reads_cpu": [
+          1016730,
+          1027102
+        ],
+        "false_raw_opcode_matches": [
+          {
+            "cpu": 559900,
+            "apparent_port": 80,
+            "containing_instruction_cpu": 559898
+          },
+          {
+            "cpu": 853448,
+            "apparent_port": 220,
+            "containing_instruction_cpu": 853446
+          }
+        ],
+        "scope": "Partial inventory; indirect I/O and unexamined candidates remain; no B peer identified"
+      },
+      "a_d4_frame": {
+        "checksum_routine_cpu": 563338,
+        "accepted_sum_low_byte": 0,
+        "checksum_error_flag": 4,
+        "flags_cpu": 223438,
+        "ordinary_tx_buffer_cpu": 226186,
+        "ordinary_rx_buffer_cpu": 226234,
+        "ordinary_clear_size_per_buffer": 48,
+        "mode_0x32_tx_buffer_cpu": 222656,
+        "mode_0x32_rx_buffer_cpu": 222792,
+        "mode_count_table_cpu": 955172,
+        "modes": [
+          {
+            "mode": 1,
+            "target_cpu": 562336,
+            "counts": {
+              "tx_count": 47,
+              "rx_count": 48
+            }
+          },
+          {
+            "mode": 2,
+            "target_cpu": 562346,
+            "counts": {
+              "tx_count": 10,
+              "rx_count": 11
+            }
+          },
+          {
+            "mode": 3,
+            "target_cpu": 562356,
+            "counts": {
+              "tx_count": 32,
+              "rx_count": 33
+            }
+          },
+          {
+            "mode": 4,
+            "target_cpu": 562366,
+            "counts": {
+              "tx_count": 45,
+              "rx_count": 46
+            }
+          },
+          {
+            "mode": 5,
+            "target_cpu": 562376,
+            "counts": {
+              "tx_count": 4,
+              "rx_count": 5
+            }
+          },
+          {
+            "mode": 6,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 7,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 8,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 9,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 10,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 11,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 12,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 13,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 14,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 15,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 16,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 17,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 18,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 19,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 20,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 21,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 22,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 23,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 24,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 25,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 26,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 27,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 28,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 29,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 30,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 31,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 32,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 33,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 34,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 35,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 36,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 37,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 38,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 39,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 40,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 41,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 42,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 43,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 44,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 45,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 46,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 47,
+            "target_cpu": 562404,
+            "counts": null
+          },
+          {
+            "mode": 48,
+            "target_cpu": 562386,
+            "counts": {
+              "tx_count": 4,
+              "rx_count": 13
+            }
+          },
+          {
+            "mode": 49,
+            "target_cpu": 562396,
+            "counts": {
+              "tx_count": 5,
+              "rx_count": 6
+            }
+          },
+          {
+            "mode": 50,
+            "target_cpu": 562404,
+            "counts": null
+          }
+        ],
+        "scope": "Observed D4 framing; unchanged B frames fail this checksum; physical peer unresolved"
+      },
+      "a_port84": {
+        "data_port": 132,
+        "receive_copy_cpu": 706686,
+        "rx_buffer_cpu": 236997,
+        "rx_index_cpu": 237051,
+        "checksum_routine_cpu": 705946,
+        "checksum_rule": "(sum(data) + 1) & 255",
+        "checksum_flags_cpu": 223536,
+        "checksum_error_mask": 16,
+        "valid_checksum_clears_error": false,
+        "builder_cpu": 700426,
+        "builder_identifier_cpu": 226422,
+        "tx_buffer_cpu": 236947,
+        "rx_remaining_cpu": 237050,
+        "observed_builder_cases": [
+          {
+            "identifier": 40960,
+            "header": 160,
+            "rx_count": 22
+          },
+          {
+            "identifier": 41216,
+            "header": 161,
+            "rx_count": 18
+          },
+          {
+            "identifier": 41472,
+            "header": 162,
+            "rx_count": 46
+          },
+          {
+            "identifier": 41728,
+            "header": 163,
+            "rx_count": 2
+          },
+          {
+            "identifier": 70,
+            "header": 161,
+            "rx_count": 18
+          },
+          {
+            "identifier": 17920,
+            "header": 161,
+            "rx_count": 18
+          }
+        ],
+        "scope": "Selected builder and receive/checksum paths; no physical peer or whole-channel equivalence established"
+      },
+      "address_map": {
+        "endm_setting": {
+          "interrupt_entry": 1122068,
+          "state_table": 1852452,
+          "states_5_to_7": [
+            1120796,
+            1120892,
+            1120990
+          ],
+          "data_register": 100,
+          "direct_store_pc": 1120874,
+          "handler": 1477618,
+          "table_code": 64599,
+          "input_word": 2404668508,
+          "low16_max": 255,
+          "field_offset": 336,
+          "response_ok": 8193,
+          "response_invalid": 8221,
+          "notification": 70,
+          "queue_slot": 2404578756,
+          "descriptor": 1852420,
+          "data_address": 2404576750,
+          "size": 1,
+          "descriptor_type": 1,
+          "callback": 1115244
+        },
+        "startup": {
+          "endm": {
+            "ram": 2408911628,
+            "defaults": 2011204,
+            "shared_pointer": 2408943148,
+            "pointer_loads": [
+              1050244,
+              1080932,
+              1081144,
+              1097194,
+              1097282,
+              1099348,
+              1100506,
+              1100718,
+              1100994,
+              1101074,
+              1102300,
+              1102464,
+              1103260,
+              1103990,
+              1104886,
+              1105010,
+              1105552,
+              1105672,
+              1105760,
+              1105868,
+              1106810,
+              1107734,
+              1107984,
+              1160642,
+              1277352,
+              1278340,
+              1279300,
+              1279352,
+              1279432,
+              1474302,
+              1474438,
+              1477670,
+              1554420,
+              1661356,
+              1680866,
+              2775956
+            ],
+            "persistence_calls": [
+              1286570,
+              1286588,
+              1286570,
+              1286588
+            ],
+            "default_u16": {
+              "0x1e": 0,
+              "0x20": 4,
+              "0x150": 32,
+              "0x15a": 1,
+              "0x15c": 70
+            }
+          },
+          "startup_task_calls": [
+            1680706,
+            1593900,
+            1286620,
+            1292278,
+            1122312,
+            1113282,
+            1362576,
+            1159784,
+            1076594,
+            1147924,
+            1356992,
+            1357088,
+            1720308,
+            1296024,
+            1049784,
+            1362632,
+            1465360,
+            1270596,
+            1722410
+          ],
+          "dispatcher_vector_slot_192": 265540,
+          "ready_bitmap_address": 1744830468,
+          "prepared_contexts": [
+            {
+              "record": 377984,
+              "control": 1744830956,
+              "priority_field": 1,
+              "entry": 1048748,
+              "stack": 2409173508,
+              "argument": 0
+            },
+            {
+              "record": 378936,
+              "control": 1744832452,
+              "priority_field": 33,
+              "entry": 264174,
+              "stack": 1744834256,
+              "argument": 0
+            }
+          ],
+          "first_frame": {
+            "base": 1744834256,
+            "pc": 264174,
+            "ps": 2031664,
+            "rp": 263434
+          },
+          "init_tables": [
+            {
+              "entry": 264382,
+              "table": 377868,
+              "header_count": 38,
+              "stride": 28,
+              "first_words": [
+                1744830780,
+                1744830824,
+                1744830868,
+                1744830912,
+                1744830956,
+                1744831000,
+                1744831044,
+                1744831088,
+                1744831132,
+                1744831176,
+                1744831220,
+                1744831264,
+                1744831308,
+                1744831352,
+                1744831396,
+                1744831440,
+                1744831484,
+                1744831528,
+                1744831572,
+                1744831616,
+                1744831660,
+                1744831704,
+                1744831748,
+                1744831792,
+                1744831836,
+                1744831880,
+                1744831924,
+                1744831968,
+                1744832012,
+                1744832056,
+                1744832100,
+                1744832144,
+                1744832188,
+                1744832232,
+                1744832276,
+                1744832320,
+                1744832364,
+                1744832408
+              ]
+            },
+            {
+              "entry": 264454,
+              "table": 378964,
+              "header_count": 49,
+              "stride": 16,
+              "first_words": [
+                1744832496,
+                1744832512,
+                1744832528,
+                1744832544,
+                1744832560,
+                1744832576,
+                1744832592,
+                1744832608,
+                1744832624,
+                1744832640,
+                1744832656,
+                1744832672,
+                1744832688,
+                1744832704,
+                1744832720,
+                1744832736,
+                1744832752,
+                1744832768,
+                1744832784,
+                1744832800,
+                1744832816,
+                1744832832,
+                1744832848,
+                1744832864,
+                1744832880,
+                1744832896,
+                1744832912,
+                1744832928,
+                1744832944,
+                1744832960,
+                1744832976,
+                1744832992,
+                1744833008,
+                1744833024,
+                1744833040,
+                1744833056,
+                1744833072,
+                1744833088,
+                1744833104,
+                1744833120,
+                1744833136,
+                1744833152,
+                1744833168,
+                1744833184,
+                1744833200,
+                1744833216,
+                1744833232,
+                1744833248,
+                1744833264
+              ]
+            },
+            {
+              "entry": 264492,
+              "table": 379752,
+              "header_count": 22,
+              "stride": 16,
+              "first_words": [
+                1744833280,
+                1744833296,
+                1744833312,
+                1744833328,
+                1744833344,
+                1744833360,
+                1744833376,
+                1744833392,
+                1744833408,
+                1744833424,
+                1744833440,
+                1744833456,
+                1744833472,
+                1744833488,
+                1744833504,
+                1744833520,
+                1744833536,
+                1744833552,
+                1744833568,
+                1744833584,
+                1744833600,
+                1744833616
+              ]
+            },
+            {
+              "entry": 264530,
+              "table": 380108,
+              "header_count": 0,
+              "stride": 12,
+              "first_words": []
+            },
+            {
+              "entry": 264568,
+              "table": 380112,
+              "header_count": 0,
+              "stride": 28,
+              "first_words": []
+            },
+            {
+              "entry": 264644,
+              "table": 380116,
+              "header_count": 0,
+              "stride": 24,
+              "first_words": []
+            },
+            {
+              "entry": 264714,
+              "table": 380120,
+              "header_count": 0,
+              "stride": 8,
+              "first_words": []
+            },
+            {
+              "entry": 264752,
+              "table": 380124,
+              "header_count": 0,
+              "stride": 8,
+              "first_words": []
+            }
+          ],
+          "context_pointer_site": 378936,
+          "context_pointer": 1744832452,
+          "stack": 33792,
+          "vector_base": 916480,
+          "copies": [
+            {
+              "setup_file": 525244,
+              "size": 122320,
+              "source_cpu": 2652780,
+              "source_file": 2914926,
+              "target_cpu": 2406388936
+            },
+            {
+              "setup_file": 525280,
+              "size": 0,
+              "source_cpu": 2777644,
+              "source_file": 3039790,
+              "target_cpu": 32768
+            },
+            {
+              "setup_file": 525316,
+              "size": 103336,
+              "source_cpu": 2777644,
+              "source_file": 3039790,
+              "target_cpu": 2409032368
+            },
+            {
+              "setup_file": 525352,
+              "size": 2548,
+              "source_cpu": 2775096,
+              "source_file": 3037242,
+              "target_cpu": 2404570816
+            },
+            {
+              "setup_file": 525382,
+              "size": 0,
+              "source_cpu": 2777644,
+              "source_file": 3039790,
+              "target_cpu": 1744883488
+            }
+          ],
+          "stage2": 263940,
+          "stage2_calls": [
+            264176,
+            264312,
+            264326,
+            264352,
+            264382,
+            264454,
+            264492,
+            264530,
+            264568,
+            264644,
+            264714,
+            264752
+          ]
+        },
+        "outcome_text": [
+          {
+            "resource": "0x60e7",
+            "call_site": 2600512,
+            "renderer_candidate": 2691198,
+            "preparation": 1541756,
+            "table_slot": 4602542,
+            "record_offset": 4654769,
+            "lines": [
+              "Update completed.",
+              "Turn camera off."
+            ],
+            "localized": {
+              "en": {
+                "selector": 1,
+                "case_offset": 1865288,
+                "table_offset": 4601618,
+                "table_slot": 4602542,
+                "record_offset": 4654769,
+                "lines": [
+                  "Update completed.",
+                  "Turn camera off."
+                ]
+              },
+              "it": {
+                "selector": 4,
+                "case_offset": 1865462,
+                "table_offset": 4852074,
+                "table_slot": 4852998,
+                "record_offset": 4914960,
+                "lines": [
+                  "Aggiornamento ultimato.",
+                  "Spegnere la fotocamera."
+                ]
+              }
+            }
+          },
+          {
+            "resource": "0x601e",
+            "call_site": 2600532,
+            "renderer_candidate": 2691198,
+            "preparation": 1541818,
+            "table_slot": 4601738,
+            "record_offset": 4651747,
+            "lines": [
+              "Update failed. ",
+              "Contact Nikon-authorized ",
+              "service representative."
+            ],
+            "localized": {
+              "en": {
+                "selector": 1,
+                "case_offset": 1865288,
+                "table_offset": 4601618,
+                "table_slot": 4601738,
+                "record_offset": 4651747,
+                "lines": [
+                  "Update failed. ",
+                  "Contact Nikon-authorized ",
+                  "service representative."
+                ]
+              },
+              "it": {
+                "selector": 4,
+                "case_offset": 1865462,
+                "table_offset": 4852074,
+                "table_slot": 4852194,
+                "record_offset": 4911357,
+                "lines": [
+                  "Aggiornamento non riuscito.",
+                  "Contattare un Centro di ",
+                  "Assistenza Nikon."
+                ]
+              }
+            }
+          }
+        ],
+        "fr_poll": {
+          "controller": {
+            "ready": {
+              "attempts_left": 3,
+              "calls": [
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    851968,
+                    65536
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    262144,
+                    589824
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    1048576,
+                    6553600
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "program",
+                  "arguments": [
+                    1048576,
+                    2148270080,
+                    6553600
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "program",
+                  "arguments": [
+                    262144,
+                    2147483648,
+                    655360
+                  ],
+                  "result": 1
+                }
+              ],
+              "outcome_base": 1074003968,
+              "outcome_offsets": [
+                24,
+                28,
+                32,
+                2072,
+                2076,
+                2080
+              ],
+              "outcome_values": [
+                2303801024,
+                2304108224,
+                2304185024,
+                2304722624,
+                2305029824,
+                2305106624
+              ]
+            },
+            "erase_error": {
+              "attempts_left": 0,
+              "calls": [
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    851968,
+                    65536
+                  ],
+                  "result": 0
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    851968,
+                    65536
+                  ],
+                  "result": 0
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    851968,
+                    65536
+                  ],
+                  "result": 0
+                }
+              ],
+              "outcome_base": 1074003968,
+              "outcome_offsets": [
+                24,
+                28,
+                32,
+                2072,
+                2076,
+                2080
+              ],
+              "outcome_values": [
+                2304261824,
+                2304569024,
+                2304645824,
+                2305183424,
+                2305490624,
+                2305567424
+              ]
+            },
+            "second_erase_recovers": {
+              "attempts_left": 2,
+              "calls": [
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    851968,
+                    65536
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    262144,
+                    589824
+                  ],
+                  "result": 0
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    851968,
+                    65536
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    262144,
+                    589824
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    1048576,
+                    6553600
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "program",
+                  "arguments": [
+                    1048576,
+                    2148270080,
+                    6553600
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "program",
+                  "arguments": [
+                    262144,
+                    2147483648,
+                    655360
+                  ],
+                  "result": 1
+                }
+              ],
+              "outcome_base": 1074003968,
+              "outcome_offsets": [
+                24,
+                28,
+                32,
+                2072,
+                2076,
+                2080
+              ],
+              "outcome_values": [
+                2303801024,
+                2304108224,
+                2304185024,
+                2304722624,
+                2305029824,
+                2305106624
+              ]
+            },
+            "program_error": {
+              "attempts_left": 0,
+              "calls": [
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    851968,
+                    65536
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    262144,
+                    589824
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    1048576,
+                    6553600
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "program",
+                  "arguments": [
+                    1048576,
+                    2148270080,
+                    6553600
+                  ],
+                  "result": 0
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    851968,
+                    65536
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    262144,
+                    589824
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    1048576,
+                    6553600
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "program",
+                  "arguments": [
+                    1048576,
+                    2148270080,
+                    6553600
+                  ],
+                  "result": 0
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    851968,
+                    65536
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    262144,
+                    589824
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    1048576,
+                    6553600
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "program",
+                  "arguments": [
+                    1048576,
+                    2148270080,
+                    6553600
+                  ],
+                  "result": 0
+                }
+              ],
+              "outcome_base": 1074003968,
+              "outcome_offsets": [
+                24,
+                28,
+                32,
+                2072,
+                2076,
+                2080
+              ],
+              "outcome_values": [
+                2304261824,
+                2304569024,
+                2304645824,
+                2305183424,
+                2305490624,
+                2305567424
+              ]
+            },
+            "last_program_recovers": {
+              "attempts_left": 2,
+              "calls": [
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    851968,
+                    65536
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    262144,
+                    589824
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    1048576,
+                    6553600
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "program",
+                  "arguments": [
+                    1048576,
+                    2148270080,
+                    6553600
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "program",
+                  "arguments": [
+                    262144,
+                    2147483648,
+                    655360
+                  ],
+                  "result": 0
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    851968,
+                    65536
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    262144,
+                    589824
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    1048576,
+                    6553600
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "program",
+                  "arguments": [
+                    1048576,
+                    2148270080,
+                    6553600
+                  ],
+                  "result": 1
+                },
+                {
+                  "operation": "program",
+                  "arguments": [
+                    262144,
+                    2147483648,
+                    655360
+                  ],
+                  "result": 1
+                }
+              ],
+              "outcome_base": 1074003968,
+              "outcome_offsets": [
+                24,
+                28,
+                32,
+                2072,
+                2076,
+                2080
+              ],
+              "outcome_values": [
+                2303801024,
+                2304108224,
+                2304185024,
+                2304722624,
+                2305029824,
+                2305106624
+              ]
+            },
+            "actual_dq5_failure": {
+              "attempts_left": 0,
+              "calls": [
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    851968,
+                    65536
+                  ],
+                  "result": 0
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    851968,
+                    65536
+                  ],
+                  "result": 0
+                },
+                {
+                  "operation": "erase",
+                  "arguments": [
+                    851968,
+                    65536
+                  ],
+                  "result": 0
+                }
+              ],
+              "outcome_base": 1074003968,
+              "outcome_offsets": [
+                24,
+                28,
+                32,
+                2072,
+                2076,
+                2080
+              ],
+              "outcome_values": [
+                2304261824,
+                2304569024,
+                2304645824,
+                2305183424,
+                2305490624,
+                2305567424
+              ],
+              "poll_reads": [
+                4,
+                4,
+                4
+              ]
+            }
+          },
+          "erase_then_program": {
+            "failed_erase_result": 0,
+            "failed_erase_reset": true,
+            "sector_bytes": 131072,
+            "programmed_bytes": 4,
+            "erase_instructions": 82,
+            "erase_poll_reads": 3,
+            "write_instructions": 259,
+            "final_words": [
+              40832,
+              20480
+            ]
+          },
+          "busy_then_ready": {
+            "result": 1,
+            "instructions": 259,
+            "poll_reads": [
+              3,
+              3
+            ],
+            "verification_reads": 2,
+            "reset": false,
+            "flash": [
+              40832,
+              20480
+            ]
+          },
+          "dq5_error": {
+            "result": 0,
+            "instructions": 122,
+            "poll_reads": [
+              4
+            ],
+            "verification_reads": 0,
+            "reset": true,
+            "flash": [
+              65535,
+              65535
+            ]
+          },
+          "ready_on_recheck": {
+            "result": 1,
+            "instructions": 283,
+            "poll_reads": [
+              4,
+              4
+            ],
+            "verification_reads": 2,
+            "reset": false,
+            "flash": [
+              40832,
+              20480
+            ]
+          }
+        },
+        "nor_sector": {
+          "injected_mismatch_offset": 131070,
+          "destination": 262144,
+          "source_offset": 524290,
+          "length": 131072,
+          "erase_writes": [
+            [
+              264874,
+              170
+            ],
+            [
+              263508,
+              85
+            ],
+            [
+              264874,
+              128
+            ],
+            [
+              264874,
+              170
+            ],
+            [
+              263508,
+              85
+            ],
+            [
+              "target",
+              48
+            ]
+          ],
+          "program_writes": [
+            [
+              264874,
+              170
+            ],
+            [
+              263508,
+              85
+            ],
+            [
+              264874,
+              160
+            ],
+            [
+              "target",
+              "data"
+            ]
+          ],
+          "programmed_words": 58431,
+          "skipped_words": 7105,
+          "readback_sha256": "da248bcdb676a2687048ac88d61ea0e87d0926196932b700a2f8e9970f873fdb"
+        },
+        "ram_update": {
+          "source_file": 3037242,
+          "source_address": 2775096,
+          "ram_base": 2404570816,
+          "size": 2548,
+          "called_address": 2404571038,
+          "entry_file": 3037464,
+          "calls": [
+            {
+              "site": 3037802,
+              "target_file": 3038214,
+              "target_ram": 2404571788,
+              "arguments": [
+                851968,
+                65536
+              ]
+            },
+            {
+              "site": 3037816,
+              "target_file": 3038214,
+              "target_ram": 2404571788,
+              "arguments": [
+                262144,
+                589824
+              ]
+            },
+            {
+              "site": 3037834,
+              "target_file": 3038214,
+              "target_ram": 2404571788,
+              "arguments": [
+                1048576,
+                6553600
+              ]
+            },
+            {
+              "site": 3037872,
+              "target_file": 3038284,
+              "target_ram": 2404571858,
+              "arguments": [
+                1048576,
+                2148270080,
+                6553600
+              ]
+            },
+            {
+              "site": 3037892,
+              "target_file": 3038284,
+              "target_ram": 2404571858,
+              "arguments": [
+                262144,
+                2147483648,
+                655360
+              ]
+            }
+          ]
+        },
+        "update_layout": {
+          "blocks": [
+            {
+              "label": "A",
+              "start": 0,
+              "end": 524290,
+              "stored": "63cc",
+              "computed": "63cc"
+            },
+            {
+              "label": "B",
+              "start": 524290,
+              "end": 7864322,
+              "stored": "c2ab",
+              "computed": "c2ab"
+            }
+          ],
+          "state_address": 2404671076,
+          "literal_load_sites": [
+            1751302,
+            1751728,
+            1751928,
+            1752964,
+            1756134,
+            1756148,
+            1756512,
+            1756602,
+            1756786,
+            1757182
+          ],
+          "dispatch_offsets_by_state_1_to_5": [
+            1753202,
+            1753292,
+            1753006,
+            1753372,
+            1753442
+          ],
+          "vector_address": 916480,
+          "vector_offset": 1178626,
+          "reset_candidate": 262144,
+          "reset_file_offset": 524290
+        },
+        "combined_reads": {
+          "marker_site": 1178614,
+          "marker_hex": "00000421",
+          "pointer_site": 1178610,
+          "pointer": 1879112,
+          "version_site": 2141258,
+          "prefix": "Ver.1.01a"
+        },
+        "directory_replay": {
+          "block": [
+            2048290,
+            2048364
+          ],
+          "one_bit_cases": 256,
+          "source_offsets": [
+            24,
+            22,
+            28
+          ],
+          "descriptor_offsets": [
+            14,
+            16,
+            20
+          ],
+          "sample_size_replayed": 7864322
+        },
+        "main_size_check": {
+          "descriptor": 2404671052,
+          "field_offset": 20,
+          "field_address": 2404671072,
+          "compared_value": 7864322,
+          "equals_target": 1755804,
+          "mismatch_target": 1755890,
+          "mismatch_slot": "0xc004"
+        },
+        "update_patterns": [
+          {
+            "site": 1751332,
+            "pattern": "AD90????.BIN",
+            "string_offset": 2175134,
+            "call_target_offsets": [
+              1757454,
+              1755664
+            ]
+          },
+          {
+            "site": 1751372,
+            "pattern": "BD90????.BIN",
+            "string_offset": 2175118,
+            "call_target_offsets": [
+              1757454,
+              1755552
+            ]
+          },
+          {
+            "site": 1751406,
+            "pattern": "D90_????.BIN",
+            "string_offset": 2175102,
+            "call_target_offsets": [
+              1757454,
+              1755774
+            ]
+          },
+          {
+            "site": 1751440,
+            "pattern": "S???????.BIN",
+            "string_offset": 2175086,
+            "call_target_offsets": [
+              1757454,
+              1756166
+            ]
+          },
+          {
+            "site": 1751474,
+            "pattern": "NKLD????.BIN",
+            "string_offset": 2175070,
+            "call_target_offsets": [
+              1757454,
+              1756888
+            ]
+          }
+        ],
+        "candidate_vector_table": {
+          "start": 1178626,
+          "end": 1179650,
+          "most_frequent": 263434,
+          "occurrences": 206,
+          "last_word": 262144
+        },
+        "build_pointer": {
+          "site": 1178610,
+          "value": 1879112,
+          "target_offset": 2141258
+        },
+        "search_region": [
+          1310722,
+          6311109
+        ],
+        "distinct_string_targets_by_delta": {
+          "-262146": 268,
+          "-262144": 0,
+          "-262148": 0,
+          "0": 11
+        },
+        "examples": [
+          {
+            "site": 1485846,
+            "immediate": 1867080,
+            "target_offset": 2129226,
+            "text": "NIKON D90"
+          },
+          {
+            "site": 1628418,
+            "immediate": 1890604,
+            "target_offset": 2152750,
+            "text": "NIKON D90  "
+          },
+          {
+            "site": 1658166,
+            "immediate": 1908812,
+            "target_offset": 2170958,
+            "text": "Nikon Corporation"
+          },
+          {
+            "site": 1658060,
+            "immediate": 1908832,
+            "target_offset": 2170978,
+            "text": "microsoft.com: 1.0"
+          },
+          {
+            "site": 1751406,
+            "immediate": 1912956,
+            "target_offset": 2175102,
+            "text": "D90_????.BIN"
+          }
+        ]
+      },
+      "uniform_runs_min_65536": [
+        {
+          "start": 642278,
+          "end": 1178610,
+          "byte": 255
+        },
+        {
+          "start": 1179650,
+          "end": 1310722,
+          "byte": 255
+        },
+        {
+          "start": 6311109,
+          "end": 7864320,
+          "byte": 255
+        }
+      ],
+      "trailer_crc16_xmodem": {
+        "covered_start": 0,
+        "covered_end": 7864320,
+        "stored_big_endian": "c2ab",
+        "computed": "c2ab",
+        "matches": true
+      }
+    }
+  },
+  {
+    "sample": "NKLD0218.BIN",
+    "size": 39588,
+    "sha256": "bc26b7413adabeabbf21e341197bc14c58666b0be5f5a8c2eac29564c73f5f1d",
+    "analysis": {
+      "version": "2.018",
+      "magic": "0x87c7caac",
+      "record_region": [
+        32,
+        39328
+      ],
+      "declared_record_count": 307,
+      "decoded_record_lengths": {
+        "128": 307
+      },
+      "crc16_xmodem_main": {
+        "start": 0,
+        "end_exclusive": 39328,
+        "stored": 22816,
+        "calculated": 22816,
+        "matches": true
+      },
+      "suffix_region": [
+        39332,
+        39588
+      ],
+      "crc16_xmodem_suffix": {
+        "start": 39332,
+        "end_exclusive": 39560,
+        "stored": 60114,
+        "calculated": 60114,
+        "matches": true
+      },
+      "trailing_cd_bytes": 24
+    }
+  }
+]

@@ -1,0 +1,12 @@
+*.bin
+*.BIN
+*.dmg
+*.exe
+*.img
+*.rom
+*.hex
+*.gpr
+*.rep/
+__pycache__/
+.DS_Store
+local/
