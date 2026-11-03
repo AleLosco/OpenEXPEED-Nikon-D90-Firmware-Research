@@ -1,8 +1,16 @@
-# Nikon D90 Firmware Research
+# OpenEXPEED — Nikon D90 Firmware Reverse Engineering
 
-Independent, evidence-led research into the Nikon D90 firmware update packages, A/B firmware images, L lens-distortion data, and selected firmware routines. The goals are to document the package formats, map and understand firmware behavior, test carefully scoped changes offline, and assess whether useful hardware emulation is feasible.
+**OpenEXPEED** is an independent, open-source research project investigating the **Nikon D90 DSLR firmware**. It documents the camera's official firmware update packages, A/B firmware images, L lens-distortion data, and selected executable routines using reproducible binary analysis, disassembly, and bounded experiments.
 
-**Project stage:** research alpha. Package structure, image boundaries, selected update and flash paths, startup behavior, and several communication routines have been documented and tested with isolated instruction-level experiments. A complete camera emulator, full peripheral model, and functional firmware patches have not been established. See [STATUS.md](STATUS.md) for the current work item and remaining gaps.
+The research covers early Nikon EXPEED-era firmware behavior, **Fujitsu FR instruction analysis**, memory mapping, boot and update paths, NOR flash programming, and A/B communication. The repository provides **Python analysis tools**, **Ghidra preparation scripts**, reference results, and evidence-linked technical documentation. The aim is to understand what the firmware does, assess opportunities for safe offline experimentation, and investigate the feasibility of future emulation—not to claim a working custom firmware.
+
+> **Research alpha — not a camera firmware replacement.** Selected routines have been examined and exercised with synthetic inputs and simulated memory. There is **no complete Nikon D90 emulator, validated firmware patch, or verified hardware modification**. See [current research status](STATUS.md) for verified findings, open questions, and limitations.
+
+## Why this project exists
+
+Public documentation of Nikon DSLR firmware internals is scattered across past research, tools, and community discussions. OpenEXPEED aims to make **Nikon D90 firmware reverse engineering** more reproducible and easier to build upon: findings include sample identity, addresses or offsets, methods, observed behavior, and explicit uncertainty. Researchers can independently check results and contribute corrections or new evidence.
+
+**Interested in contributing?** Help reproduce an analysis, review a Fujitsu FR disassembly, identify hardware interfaces, investigate Nikon update mechanisms, or share relevant prior work. Start with [CONTRIBUTING.md](CONTRIBUTING.md), the [technical documentation](docs/README.md), and [related projects](docs/related-projects.md).
 
 ## Main results so far
 
