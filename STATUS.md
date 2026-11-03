@@ -22,7 +22,7 @@ Il confronto con l’emulatore Nikon Hacker non identifica il destinatario del t
 
 La funzione 0x108624 è ora eseguita isolatamente fino al ritorno: scrive valori precisi in sei blocchi hardware e altri registri. Le verifiche usano memoria sintetica, quindi non identificano gli effetti fisici di quelle scritture. La prossima fase deve identificare la periferica e risalire agli ingressi che abilitano il bit del messaggio 0x0b. L’inizializzazione completa all’avvio, il significato fotografico e il destinatario fisico restano aperti.
 
-Fonti, indirizzi e limiti delle prove sono in [communication-topology.md](research/communication-topology.md); la valutazione dei riferimenti esterni è in [github-projects.md](research/github-projects.md). Modello consigliato per la prossima indagine: Astra Medio.
+Fonti, indirizzi e limiti delle prove sono in [communication-topology.md](docs/communication-topology.md); la valutazione dei riferimenti esterni è in [related-projects.md](docs/related-projects.md). Modello consigliato per la prossima indagine: Astra Medio.
 
 ## Prima pubblicazione
 

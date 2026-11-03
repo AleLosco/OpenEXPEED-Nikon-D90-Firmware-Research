@@ -1,6 +1,6 @@
 # Contribuire alla ricerca
 
-Iniziare da [STATUS.md](STATUS.md) e usare il [registro delle evidenze](README.md) per distinguere lo stato attuale dalle ipotesi storiche. È utile contribuire anche con una riproduzione indipendente, un caso che fallisce o una correzione di un’interpretazione.
+Iniziare da [STATUS.md](STATUS.md) e consultare l’[indice della documentazione tecnica](docs/README.md) per trovare i risultati e le relative prove. È utile contribuire anche con una riproduzione indipendente, un caso che fallisce o una correzione di un’interpretazione.
 
 ## Campioni e risultati
 
