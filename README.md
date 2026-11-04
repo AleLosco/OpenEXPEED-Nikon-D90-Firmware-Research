@@ -1,23 +1,17 @@
-# OpenEXPEED — Nikon D90 Firmware Reverse Engineering
+# Nikon D90 Firmware Research
 
-**OpenEXPEED** is an independent, open-source research project investigating the **Nikon D90 DSLR firmware**. It documents the camera's official firmware update packages, A/B firmware images, L lens-distortion data, and selected executable routines using reproducible binary analysis, disassembly, and bounded experiments.
+Independent, evidence-led research into the Nikon D90 firmware update packages, A/B firmware images, L lens-distortion data, and selected firmware routines. The goals are to document the package formats, map and understand firmware behavior, test carefully scoped changes offline, and assess whether useful hardware emulation is feasible.
 
-The research covers early Nikon EXPEED-era firmware behavior, **Fujitsu FR instruction analysis**, memory mapping, boot and update paths, NOR flash programming, and A/B communication. The repository provides **Python analysis tools**, **Ghidra preparation scripts**, reference results, and evidence-linked technical documentation. The aim is to understand what the firmware does, assess opportunities for safe offline experimentation, and investigate the feasibility of future emulation—not to claim a working custom firmware.
+**Project stage:** research alpha. Package structure, selected update and flash paths, startup behavior, and communication routines have been documented with bounded instruction-level experiments. A complete camera emulator, full peripheral model, and validated firmware patch have not been established.
 
-> **Research alpha — not a camera firmware replacement.** Selected routines have been examined and exercised with synthetic inputs and simulated memory. There is **no complete Nikon D90 emulator, validated firmware patch, or verified hardware modification**. See [current research status](STATUS.md) for verified findings, open questions, and limitations.
-
-## Why this project exists
-
-Public documentation of Nikon DSLR firmware internals is scattered across past research, tools, and community discussions. OpenEXPEED aims to make **Nikon D90 firmware reverse engineering** more reproducible and easier to build upon: findings include sample identity, addresses or offsets, methods, observed behavior, and explicit uncertainty. Researchers can independently check results and contribute corrections or new evidence.
-
-**Interested in contributing?** Help reproduce an analysis, review a Fujitsu FR disassembly, identify hardware interfaces, investigate Nikon update mechanisms, or share relevant prior work. Start with [CONTRIBUTING.md](CONTRIBUTING.md), the [technical documentation](docs/README.md), and [related projects](docs/related-projects.md).
+**Estimated research progress: about 40%.** This is a roadmap estimate based on the breadth of the remaining goals, not a measure of firmware instructions understood. Package analysis is substantially mature; camera-wide behavior, realistic emulation, and patches remain early or unstarted. See [STATUS.md](STATUS.md) for area estimates, current evidence, and open work.
 
 ## Main results so far
 
 - The combined A/B update package has been separated into its A and B regions, with boundaries and per-region checksums tied to observed update code ([AB-11](docs/update-and-flash.md#ab-11)).
 - The L sample decodes into 307 records under the documented recurrence; the record fields and trailing data are not fully understood, and no executable code has been established ([L-1](docs/firmware-formats.md#l-1), [L-2](docs/firmware-formats.md#l-2)).
 - Selected B startup and NOR flash programming paths have been followed statically, with bounded instruction-level experiments against simulated memory ([AB-15–AB-18](docs/update-and-flash.md#ab-15)).
-- Isolated experiments cover selected A/B communication handlers. AB-43–AB-46 trace an enable flag and the movement of list elements, while their camera-level meaning remains unresolved ([AB-30–AB-46](docs/communication-analysis.md#ab-30), [AB-43–AB-46](docs/communication-topology.md#ab-43)).
+- Isolated experiments cover selected A/B communication handlers. B-side findings AB-43–AB-61 trace selected state, callback, buffer and ATAM communication paths. The newer ATAM results trace a command through selector 0x22, an interrupt vector, and a two-bit OS wait predicate. Peripheral event timing and the complete camera communication model remain unresolved ([AB-30–AB-61](docs/communication-analysis.md#ab-30), [AB-62–AB-70](docs/communication-topology.md#ab-62--lattesa-atam-richiede-entrambi-i-bit)).
 
 ## Tools and materials
 
@@ -39,7 +33,7 @@ diff -u reports/reference.json /tmp/d90-report.json
 
 The analyzer opens the inputs read-only and checks their SHA-256 digests before decoding. A clean `diff` reproduces the checked-in report. The reference digests identify the analyzed samples; Nikon’s download pages do not publish an internal-file digest for independent authentication.
 
-Run the synthetic parser and digest-gate tests with `python3 -m unittest discover -s tests -v`. They check NKLD parsing and malformed bounds without firmware files, so they do not independently verify sample-specific findings.
+Run the synthetic parser and digest-gate tests with `python3 -m unittest discover -s tests -v`. They check NKLD container parsing and malformed bounds without requiring firmware files. They do not independently verify claims tied to the official samples.
 
 ## Documentation
 
@@ -48,7 +42,7 @@ Run the synthetic parser and digest-gate tests with `python3 -m unittest discove
 - [Update package and flash path](docs/update-and-flash.md): update selection, validation, flash operations, and associated display paths (AB-6–AB-23).
 - [Boot analysis and Ghidra work](docs/boot-and-ghidra.md): B-image import and startup analysis (AB-24–AB-29).
 - [Communication analysis](docs/communication-analysis.md): A/B transport paths and isolated experiments (AB-30–AB-42).
-- [Communication topology and callback details](docs/communication-topology.md): external comparison and expanded evidence for AB-38–AB-46.
+- [Communication topology and callback details](docs/communication-topology.md): external comparison and expanded evidence for AB-38–AB-70.
 - [Related projects](docs/related-projects.md): external projects reviewed for relevance.
 
 For the current research status, see [STATUS.md](STATUS.md). To reproduce Ghidra work or submit a finding, see [CONTRIBUTING.md](CONTRIBUTING.md).
