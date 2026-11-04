@@ -1,6 +1,6 @@
 # Stato del progetto
 
-Aggiornato il 4 novembre 2026. Questo file riassume il risultato attuale; il README conserva il registro storico delle evidenze, incluse ipotesi poi precisate o ridimensionate.
+Aggiornato il 4 novembre 2026. Questo file riassume il risultato attuale; il README presenta il progetto, mentre i documenti tecnici conservano evidenze, ipotesi e revisioni delle interpretazioni.
 
 Il progetto è un laboratorio di ricerca con analizzatore riproducibile e prove emulative di singole routine. Non contiene una patch funzionale validata sulla fotocamera né un emulatore completo della D90.
 
