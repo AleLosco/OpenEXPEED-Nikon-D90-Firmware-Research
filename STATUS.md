@@ -52,7 +52,7 @@ Criteri di mantenimento della pubblicazione:
 
 Una riproduzione su una seconda macchina resta utile come verifica indipendente. Non è stata eseguita e non va confusa con una nuova importazione sullo stesso host. Le prove numerose non misurano la percentuale di firmware compresa: molti casi variano gli ingressi dello stesso blocco di poche istruzioni.
 
-Descrizione proposta per GitHub: “Independent Nikon D90 firmware research. Progress ~40%: package analysis 85%, update and flash 60%, communications 50%, emulation 15%, validated patches 5%. No firmware included.” Argomenti: nikon, firmware, reverse-engineering, ghidra, camera.
+Descrizione impostata nel campo About di GitHub: “Independent Nikon D90 firmware research. Progress ~40%: package analysis 85%, update and flash 60%, communications 50%, emulation 15%, validated patches 5%. No firmware included.” Argomenti: nikon, firmware, reverse-engineering, ghidra, camera.
 
 ## Verifica di preparazione del 3 novembre 2026
 
@@ -61,4 +61,4 @@ Descrizione proposta per GitHub: “Independent Nikon D90 firmware research. Pro
 - Tutti i blob della cronologia raggiungibile esaminata sono testo UTF-8 senza byte NUL. Il controllo dei nomi non ha trovato firmware, HEX o database Ghidra nella cronologia. Si tratta di un controllo degli artefatti, non di una certificazione legale o di una revisione indipendente di ogni riga.
 - Le esclusioni Git comprendono ora anche HEX e progetti Ghidra. La documentazione indica come riprodurre le prove e conserva i digest del profilo linguaggio.
 
-Valutazione: il repository è pubblicato come alpha di ricerca. Gli aggiornamenti locali AB-62–AB-70 e la revisione indipendente del 4 novembre sono pronti per il push al ramo principale. Una verifica su un’altra macchina rafforzerebbe la riproducibilità, ma non richiede prima di risolvere il collegamento A–B o l’emulazione completa.
+Valutazione: il repository è pubblicato come alpha di ricerca. Gli aggiornamenti AB-62–AB-70, la revisione indipendente del 4 novembre, l’indice aggiornato e la stima di avanzamento sono pubblicati sul ramo main. Una verifica su un’altra macchina rafforzerebbe la riproducibilità, ma non richiede prima di risolvere il collegamento A–B o l’emulazione completa.
