@@ -17,7 +17,7 @@ Le prove locali usano Ghidra 12.1.4, Temurin 21 e il linguaggio `fr60:BE:16:defa
 Generare due file locali usando `ghidra/prepare.py`, con `--component A` e `--component B`. Importarli come programmi distinti con il loader Intel HEX. Per le verifiche recenti, aggiungere la cartella `ghidra/` allo Script Manager ed eseguire:
 
 - Programma A: `D90AChannels.java`, `D90ACommands.java`, `D90AD4Receive.java`, `D90AD4Checksum.java`, `D90A84Protocol.java`.
-- Programma B: `D90OutputByte.java`, `D90BTransaction.java`, `D90BCallback34.java`, `D90BCallback34Effects.java`, `D90BStateGate.java`, `D90BMaskConsumers.java`, `D90BMessage0B.java`, `D90BHardwareSequence.java`.
+- Programma B: `D90OutputByte.java`, `D90BTransaction.java`, `D90BCallback34.java`, `D90BCallback34Effects.java`, `D90BStateGate.java`, `D90BMaskConsumers.java`, `D90BMessage0B.java`, `D90BHardwareSequence.java`, `D90EnableGate.java`, `D90GateOrigins.java`, `D90WordSetup.java`, `D90ElementCycle.java`. `D90InputReferences.java` prints static scalar-operand candidates and is not an emulation test.
 
 Controllare sia i messaggi di successo sia l’assenza di eccezioni nel log; il solo codice d’uscita di Ghidra headless può non segnalare il fallimento di uno script. Queste sono prove di blocchi originali con memoria e ingressi preparati. Non eseguono l’intera fotocamera e non sostituiscono una convalida hardware.
 
@@ -37,3 +37,8 @@ python3 ghidra/prepare.py /percorso/D90_0101.bin --component A > local/D90-A.hex
 ```
 
 Usare un nome di progetto temporaneo non esistente. `-deleteProject` elimina il progetto temporaneo al termine; non usarlo sul proprio database di ricerca. Per B generare l’HEX con `--component B`, scegliere un altro nome di progetto e sostituire gli script con `D90OutputByte.java`, `D90BTransaction.java` e `D90BCallback34.java`, `D90BCallback34Effects.java`, `D90BStateGate.java`, `D90BMaskConsumers.java`, `D90BMessage0B.java`, `D90BHardwareSequence.java`. Ghidra e il profilo FR60 devono essere già installati e Java configurato secondo la propria installazione.
+
+
+## Test sintetici
+
+Eseguire `python3 -m unittest discover -s tests -v` per i test sintetici del parser NKLD e il controllo del digest della CLI. Non richiedono i firmware e non verificano le affermazioni legate ai campioni ufficiali.

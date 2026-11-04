@@ -17,7 +17,7 @@ Public documentation of Nikon DSLR firmware internals is scattered across past r
 - The combined A/B update package has been separated into its A and B regions, with boundaries and per-region checksums tied to observed update code ([AB-11](docs/update-and-flash.md#ab-11)).
 - The L sample decodes into 307 records under the documented recurrence; the record fields and trailing data are not fully understood, and no executable code has been established ([L-1](docs/firmware-formats.md#l-1), [L-2](docs/firmware-formats.md#l-2)).
 - Selected B startup and NOR flash programming paths have been followed statically, with bounded instruction-level experiments against simulated memory ([AB-15–AB-18](docs/update-and-flash.md#ab-15)).
-- Isolated experiments cover selected A/B communication handlers. Peripheral identities and the complete camera communication model remain unresolved ([AB-30–AB-42](docs/communication-analysis.md#ab-30)).
+- Isolated experiments cover selected A/B communication handlers. AB-43–AB-46 trace an enable flag and the movement of list elements, while their camera-level meaning remains unresolved ([AB-30–AB-46](docs/communication-analysis.md#ab-30), [AB-43–AB-46](docs/communication-topology.md#ab-43)).
 
 ## Tools and materials
 
@@ -39,6 +39,8 @@ diff -u reports/reference.json /tmp/d90-report.json
 
 The analyzer opens the inputs read-only and checks their SHA-256 digests before decoding. A clean `diff` reproduces the checked-in report. The reference digests identify the analyzed samples; Nikon’s download pages do not publish an internal-file digest for independent authentication.
 
+Run the synthetic parser and digest-gate tests with `python3 -m unittest discover -s tests -v`. They check NKLD parsing and malformed bounds without firmware files, so they do not independently verify sample-specific findings.
+
 ## Documentation
 
 - [Documentation index](docs/README.md): topic map and stable finding IDs.
@@ -46,7 +48,7 @@ The analyzer opens the inputs read-only and checks their SHA-256 digests before 
 - [Update package and flash path](docs/update-and-flash.md): update selection, validation, flash operations, and associated display paths (AB-6–AB-23).
 - [Boot analysis and Ghidra work](docs/boot-and-ghidra.md): B-image import and startup analysis (AB-24–AB-29).
 - [Communication analysis](docs/communication-analysis.md): A/B transport paths and isolated experiments (AB-30–AB-42).
-- [Communication topology and callback details](docs/communication-topology.md): external comparison and expanded evidence for AB-38–AB-42.
+- [Communication topology and callback details](docs/communication-topology.md): external comparison and expanded evidence for AB-38–AB-46.
 - [Related projects](docs/related-projects.md): external projects reviewed for relevance.
 
 For the current research status, see [STATUS.md](STATUS.md). To reproduce Ghidra work or submit a finding, see [CONTRIBUTING.md](CONTRIBUTING.md).

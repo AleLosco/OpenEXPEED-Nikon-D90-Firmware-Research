@@ -24,6 +24,8 @@ La funzione 0x108624 è ora eseguita isolatamente fino al ritorno: scrive valori
 
 Fonti, indirizzi e limiti delle prove sono in [communication-topology.md](docs/communication-topology.md); la valutazione dei riferimenti esterni è in [related-projects.md](docs/related-projects.md). Modello consigliato per la prossima indagine: Astra Medio.
 
+Le analisi successive AB-43–AB-46 hanno individuato due scritture che attivano il flag 0x0b e seguito l'inizializzazione, il conteggio, il prelievo e la restituzione di elementi fra liste B. Le verifiche sono limitate a blocchi e RAM sintetici, con eventi del sistema operativo non modellati. Restano aperti l'origine fisica degli ingressi, il significato degli elementi e il campo che decide la lista di restituzione. Una suite di sette test sintetici copre ora i limiti del parser L e il rifiuto del digest CLI, senza sostituire la riproduzione sui campioni originali.
+
 ## Prima pubblicazione
 
 Il contenuto è confezionato per una prima versione pubblica di ricerca, presentata come alpha. Non occorre attendere una patch o l’emulazione completa per rendere utili agli altri le mappe, gli strumenti e le verifiche già disponibili.
