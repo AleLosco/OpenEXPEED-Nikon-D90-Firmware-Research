@@ -404,7 +404,7 @@ Componente B, campione AB-1. Con TBR iniziale 0xdfc00 (AB-62), la voce del vetto
 
 Il gestore spegne 0x02 nella parola a 0x63000038, lo aggiunge con OR alla parola software a 0x6800cd00 e scrive 2 a 0x63000030. Legge quindi il selettore e raggiunge la notifica 0x20000000 per 0x12, 0x19 o 0x22 (AB-61, AB-67). Il dispatcher ha inoltre una propria notifica 0x00800000 a 0x19afe6, distinta da quella condizionata dal selettore.
 
-[D90AtamInterrupt.java](../ghidra/D90AtamInterrupt.java) legge la voce originale e parte dal suo indirizzo di destinazione. Dieci casi eseguono senza salti imposti il wrapper, il dispatcher e i rami scelti fino alla prima INT di notifica. Verificano ingresso nel gestore, identificativo 7, servizio −48, maschera e tre parole di memoria. Con 0x02 in entrambi i registri sono stati provati quattro selettori; con 0x02 in uno solo il gestore viene saltato. Con 0x32 in entrambi prevale 0x10; con 0x22 in entrambi prevale 0x20; con 0x32 nel primo e 2 nel secondo prevale 2. Le parole di periferica sono RAM sintetica: si verificano i valori letti e scritti dal firmware. L'origine elettrica dell'interrupt, l'effetto hardware della scrittura di 2 e i tempi restano da determinare.
+[D90AtamInterrupt.java](../ghidra/D90AtamInterrupt.java) legge la voce originale e parte dal suo indirizzo di destinazione. Nove casi eseguono senza salti imposti il wrapper, il dispatcher e i rami scelti fino alla prima INT di notifica. Verificano ingresso nel gestore, identificativo 7, servizio −48, maschera e tre parole di memoria. Con 0x02 in entrambi i registri sono stati provati quattro selettori; con 0x02 in uno solo il gestore viene saltato. Con 0x32 in entrambi prevale 0x10; con 0x22 in entrambi prevale 0x20; con 0x32 nel primo e 2 nel secondo prevale 2. Le parole di periferica sono RAM sintetica: si verificano i valori letti e scritti dal firmware. L'origine elettrica dell'interrupt, l'effetto hardware della scrittura di 2 e i tempi restano da determinare.
 
 ## AB-69 · Abilitazione del bit 0x02 prima del comando 0x223a0011
 
@@ -422,6 +422,178 @@ Componente B, campione AB-1. Nel percorso accettato di 0x1a07ae, la chiamata a 0
 
 ## AB-70 · Il gestore registra 0x02 dopo l'ingresso nell'interrupt
 
-Componente B, campione AB-1. La catena AB-68 distingue la maschera richiesta a 0x63000038 dalla parola di stato a 0x63000030. Nel percorso che seleziona 0x19a71e, l'ingresso nell'interrupt avviene prima che il gestore scriva 2 nello stato. La prova al vettore 0x2c mostra che, con maschera 2, stato iniziale zero e selettore 0x22, il codice arriva alla notifica −48 con R5=0x20000000, dopo aver scritto lo stato 2. Quindi il valore 2 osservato in 0x63000030 alla fine di questo percorso è un effetto del gestore e non è necessario che fosse già presente per entrare nel gestore.
+**Rettifica del 5 novembre 2026.** Il titolo originale è mantenuto per conservare il collegamento esistente. La conclusione precedente secondo cui stato iniziale zero permetterebbe l'ingresso in 0x19a71e è ritirata: contraddice AB-68 e gli esiti dello script. Il testo storico in fondo a questa sezione è conservato soltanto come registro della correzione.
 
-[D90AtamInterrupt.java](../ghidra/D90AtamInterrupt.java) è stato esteso a dieci casi. Il nuovo caso parte dal vettore originale con maschera 2, stato zero e selettore 0x22; verifica l'ingresso, la notifica e la transizione di stato. È una prova su RAM sintetica. AB-69 documenta la predisposizione del bit 2 nella maschera richiesta prima del comando. AB-70 non individua quale evento della periferica causi l'interrupt né come il bit 2 venga impostato nel registro di stato prima di eventuali altri ingressi.
+La riesecuzione di `D90AtamInterrupt.java` sul programma B locale, con Ghidra 12.1.4 e Temurin 21.0.13, passa nove casi, senza WARN, ERROR o eccezioni nel log esaminato. Il conteggio ora deriva dai casi completati e ogni caso stampa ingressi, ingresso nel gestore, punto di arresto, R5 e stato finale. Le asserzioni e gli ingressi dei nove casi non sono stati cambiati.
+
+| Maschera iniziale | Stato iniziale | Selettore | Ingresso in 0x19a71e | Arresto prima della INT | R5 | Stato finale |
+| --- | --- | --- | --- | --- | --- | --- |
+| 0x02 | 0x00 | 0x22 | No | 0x19afe6 | 0x00800000 | 0x00 |
+| 0x02 | 0x02 | 0x22 | Sì | 0x19a780 | 0x20000000 | 0x02 |
+
+Il primo caso mantiene anche la maschera a 2 e la parola software a 0x6800cd00 al valore iniziale 0x800. Il secondo porta la maschera a zero e la parola software a 0x802. Il dispatcher seleziona il ramo mediante l'intersezione fra maschera e stato: la scrittura successiva di 2 da parte del gestore non spiega l'origine del bit letto prima della selezione.
+
+Il log locale è `work/atam-interrupt-ab70-correction.log` nella workspace di ricerca; gli ingressi e le asserzioni riproducibili sono nello script collegato sopra. Il progetto è stato aperto con `-readOnly -noanalysis`. È una riesecuzione sullo stesso host con MMIO in RAM sintetica, non una prova sulla fotocamera. L'inizio al wrapper è imposto dall'esperimento: non riproduce la generazione hardware dell'interrupt. L'effetto fisico della scrittura e l'origine del bit restano sconosciuti. La revisione indipendente del 4 novembre copriva AB-62–AB-69, non AB-70.
+
+### Testo storico ritirato
+
+Le due formulazioni seguenti sono errate e conservate per tracciabilità; non costituiscono risultati verificati.
+
+> Componente B, campione AB-1. La catena AB-68 distingue la maschera richiesta a 0x63000038 dalla parola di stato a 0x63000030. Nel percorso che seleziona 0x19a71e, l'ingresso nell'interrupt avviene prima che il gestore scriva 2 nello stato. La prova al vettore 0x2c mostra che, con maschera 2, stato iniziale zero e selettore 0x22, il codice arriva alla notifica −48 con R5=0x20000000, dopo aver scritto lo stato 2. Quindi il valore 2 osservato in 0x63000030 alla fine di questo percorso è un effetto del gestore e non è necessario che fosse già presente per entrare nel gestore.
+>
+> [D90AtamInterrupt.java](../ghidra/D90AtamInterrupt.java) è stato esteso a dieci casi. Il nuovo caso parte dal vettore originale con maschera 2, stato zero e selettore 0x22; verifica l'ingresso, la notifica e la transizione di stato. È una prova su RAM sintetica. AB-69 documenta la predisposizione del bit 2 nella maschera richiesta prima del comando. AB-70 non individua quale evento della periferica causi l'interrupt né come il bit 2 venga impostato nel registro di stato prima di eventuali altri ingressi.
+
+## AB-71 · Candidati di accesso allo stato tramite le funzioni MMIO
+
+Analisi statica del 5 novembre 2026, componente B del campione AB-1 (SHA-256 `623906f285c656a7c6e4f3cecd26bc5e2b6da38ba07f0cc76a235f7e524814af`). [D90StatusCandidates.java](../ghidra/D90StatusCandidates.java) cerca nell'intervallo [0x198000, 0x1a4000) caricamenti `LDI:32 #0x63000000,R4` su indirizzi pari e stampa finestre di massimo 12 istruzioni contenenti il testo `#0x30,`. Si ferma al primo trasferimento di controllo e mostra anche il delay slot. Il filtro è euristico: i risultati sono candidati disassemblati, non una prova della raggiungibilità dei blocchi o una ricerca completa delle letture e scritture.
+
+Nelle 23 finestre stampate, la lettura delle istruzioni mostra il calcolo R4=0x63000030 e chiamate indirette tramite R12: 21 alla funzione 0x1a011e e due alla funzione 0x1a011a. La prima contiene `RET:D` a 0x1a011e e `ST R5,@R4` nel delay slot a 0x1a0120; la seconda contiene `RET:D` a 0x1a011a e `LD @R4,R4` nel delay slot a 0x1a011c. I valori nella tabella sono quelli preparati localmente dal codice, compresi i delay slot delle chiamate.
+
+| Inizio finestra | Chiamata | Operazione | Valore R5 scritto |
+| --- | --- | --- | --- |
+| 0x19a704 | 0x19a714 | Scrittura | 0x1 |
+| 0x19a748 | 0x19a758 | Scrittura | 0x2 |
+| 0x19a7ae | 0x19a7be | Scrittura | 0x4 |
+| 0x19a854 | 0x19a86e | Scrittura | 0x30000 |
+| 0x19a8cc | 0x19a8e0 | Scrittura | 0x10000 |
+| 0x19a93e | 0x19a952 | Scrittura | 0x20000 |
+| 0x19a954 | 0x19a968 | Scrittura | 0x20000 |
+| 0x19a9c6 | 0x19a9da | Scrittura | 0x40000 |
+| 0x19aa38 | 0x19aa4c | Scrittura | 0x80000 |
+| 0x19aaac | 0x19aac2 | Scrittura | 0x100000 |
+| 0x19ab24 | 0x19ab3a | Scrittura | 0x200000 |
+| 0x19ab9c | 0x19abb2 | Scrittura | 0x400000 |
+| 0x19abfc | 0x19ac12 | Scrittura | 0x800000 |
+| 0x19ac5c | 0x19ac72 | Scrittura | 0x1000000 |
+| 0x19acd4 | 0x19acea | Scrittura | 0x10000000 |
+| 0x19ad34 | 0x19ad4a | Scrittura | 0x20000000 |
+| 0x19ad94 | 0x19adaa | Scrittura | 0x40000000 |
+| 0x19adf4 | 0x19ae0a | Scrittura | 0x80000000 |
+| 0x19aefe | 0x19af0e | Lettura | — |
+| 0x19af32 | 0x19af42 | Scrittura | 0x10 |
+| 0x19af68 | 0x19af78 | Scrittura | 0x20 |
+| 0x19d8c6 | 0x19d8dc | Scrittura | 0xf1ff01ff |
+| 0x19da8a | 0x19da9a | Lettura | — |
+
+La chiamata a 0x19d8dc prepara `0xf1ff01ff`, comprendente il bit 0x02. Questo è un ulteriore sito software che scrive una parola contenente quel bit, oltre al ramo del gestore a 0x19a758. Non è dimostrato che la scrittura accenda il bit letto: la semantica della periferica potrebbe differire da quella della RAM sintetica. Non si attribuisce qui al registro una semantica di impostazione o cancellazione dei bit.
+
+Esecuzione: Ghidra 12.1.4, progetto B esistente aperto con `-readOnly -noanalysis`, script passato con `-postScript D90StatusCandidates.java`; log locale `work/status-candidates.log`. Nessun WARN, ERROR o eccezione nel log esaminato. Non sono state eseguite nuove prove emulative in questa fase. Il metodo non segue basi in altri registri, chiamate precedenti, percorsi attraverso salti o riferimenti fuori dall'intervallo. Una sequenza decodificabile può essere dato anziché codice: le finestre nuove richiedono conferma del contesto e dei chiamanti. Prossimo passo: risalire al contesto di 0x19d8c6 e al consumo della lettura a 0x19da9a. L'origine fisica dell'interrupt resta aperta.
+
+## AB-72 · La scrittura ampia dello stato segue la cancellazione delle maschere
+
+Componente B, campione AB-1, analisi del 5 novembre 2026. La scrittura a 0x19d8dc di AB-71 appartiene alla routine 0x19d89c–0x19d91e. Prima della scrittura, a 0x19d8c4 viene chiamata 0x19f7da con R4=0xf1ff01ff. Questa routine complementa l'argomento e applica AND con 0x0e00fe00 alle parole 0x63000034 e 0x63000038, tramite 0x1a0122. Quindi cancella anche il bit 0x02 nella maschera del dispatcher, prima di scrivere 0xf1ff01ff a 0x63000030. Il seguito applica AND 0xffff00ff e OR 1 alla parola 0x6300002c, azzera i byte 0x6800cf16 e 0x6800cf15 e ritorna. All'inizio, se il bit 1 della mezza parola 0x5000000a è acceso, lo cancella.
+
+[D90StatusReset.java](../ghidra/D90StatusReset.java) entra a 0x19d89c e segue tutte le chiamate originali fino al ritorno a una sentinella sintetica 0x80000000, con limite di 200 passi. Due casi inizializzano le quattro parole MMIO rispettivamente a zero e 0xffffffff e la mezza parola a zero e 0xffff. Entrambi verificano il ritorno, le due maschere, lo stato, la parola 0x6300002c, la mezza parola e i due byte inizializzati a 0x55/0x66. Non vengono sostituite funzioni con ritorni simulati.
+
+| Ingresso delle parole MMIO | 0x63000034 e 0x63000038 finali | 0x63000030 finale | 0x6300002c finale |
+| --- | --- | --- | --- |
+| 0x00000000 | 0x00000000 | 0xf1ff01ff | 0x00000001 |
+| 0xffffffff | 0x0e00fe00 | 0xf1ff01ff | 0xffff00ff |
+
+La lettura a 0x19da9a appartiene invece al corpo che inizia a 0x19d9dc. Il listato mostra l'invio di 0x0d1a0000 tramite 0x19f75e a 0x19da4e, R9 inizializzato a 1000 e un ciclo contenente servizi OS. Il valore letto viene conservato in R8 a 0x19da9c. Il confronto a 0x19da82–0x19da88 usa R8 & 0x000f0001; R8 parte da zero prima del ciclo, quindi questo confronto precede la lettura corrente e usa il valore conservato dall'iterazione precedente. Il seguito controlla anche il byte 0x6800cf1a e il contatore R9. I rami a 0x19dace e 0x19dad6 distinguono i bit 16–19 e il bit 0. Questi controlli non selezionano il bit 0x02. Non è stata eseguita emulativamente questa seconda routine né i suoi servizi OS; 1000 è un valore di contatore, non una durata verificata.
+
+[D90StatusContext.java](../ghidra/D90StatusContext.java) conserva le finestre disassemblate [0x19d89c, 0x19db40) e [0x19f7da, 0x19f81c). Log locali: `work/status-context.log` e `work/status-reset.log`. Ghidra 12.1.4, Temurin 21.0.13, programma locale B aperto con `-readOnly -noanalysis`; nessun WARN, ERROR o eccezione nei log finali. La prima preparazione della prova usava il nome di registro non supportato R13: è stata corretta usando gli alias AC/FP del profilo prima dell'esecuzione riuscita.
+
+La sequenza è compatibile con una disabilitazione/ripristino, ma questa denominazione è un'ipotesi, non il nome recuperato della funzione. RAM sintetica non modella eventuali effetti di cancellazione alla scrittura dello stato. Non sono identificati i chiamanti che determinano quando 0x19d89c viene eseguita sulla fotocamera né la sorgente fisica del bit 0x02. Prossimo passo: risalire ai chiamanti della routine e confrontare la sequenza con l'abilitazione di AB-69.
+
+## AB-73 · Due chiamanti eseguono la sequenza prima di 0x19db40
+
+Componente B, campione AB-1, 5 novembre 2026. [D90StatusCallers.java](../ghidra/D90StatusCallers.java) interroga i riferimenti presenti nel database e cerca caricamenti immediati a 32 bit di 0x19d89c nell'intervallo [0x198000, 0x1a4000), su indirizzi pari. In questa esecuzione non sono stati stampati riferimenti del database; la scansione trova due candidati, confermati dal disassemblaggio locale come chiamate tramite R12. Non è un inventario completo: chiamate dirette senza riferimento già registrato, puntatori costruiti diversamente, tabelle e codice fuori dall'intervallo possono sfuggire.
+
+| Ingresso del chiamante | Chiamata a 0x19d89c | Chiamata successiva a 0x19db40 | Lettura dello stato software |
+| --- | --- | --- | --- |
+| 0x19d4ac | 0x19d4bc | 0x19d4c4 | 0x19d4c6 |
+| 0x19d52c | 0x19d53c | 0x19d544 | 0x19d546 |
+
+Entrambi i prefissi salvano R8 e RP, caricano R8=0x6800cf1f ed eseguono le due chiamate senza un ramo condizionale intermedio. Il seguito statico legge il byte a quell'indirizzo: se il bit 0 è acceso restituisce 0xfff20009; altrimenti, se il bit 6 è spento, restituisce 0xfff20003; altrimenti restituisce zero. Non viene assegnato un significato fotografico ai codici. Il valore restituito da 0x19db40 non è direttamente usato da questi confronti, che leggono lo stato software.
+
+[D90StatusCallerPrefix.java](../ghidra/D90StatusCallerPrefix.java) esegue ciascun chiamante dal suo ingresso, attraversa la routine originale 0x19d89c e si ferma prima della prima istruzione di 0x19db40. Due configurazioni MMIO per chiamante (zero e tutti i bit accesi) danno quattro casi riusciti. Vengono controllati gli effetti di AB-72, R8=0x6800cf1f e il byte di stato software inizializzato a 0xa5, invariato fino a quel confine. Non si simula il ritorno della seconda funzione e non si eseguono le decisioni finali dei chiamanti. Il limite è 200 passi per caso, RAM e registri sono sintetici.
+
+Il listato di 0x19db40 mostra prima le chiamate a 0x19df9c e 0x19e020, poi la lettura di 0x63000024 e il controllo della maschera 0x00040000 a 0x19db68–0x19db6e. Il corpo successivo contiene altre chiamate e servizi OS. È il prossimo confine da studiare; la sequenza non basta ancora a identificare il dispositivo o il momento in cui viene invocata nella fotocamera.
+
+[D90StatusCallerContext.java](../ghidra/D90StatusCallerContext.java) stampa le finestre statiche [0x19d450, 0x19d574) e [0x19db40, 0x19dc00); i prefissi dei due chiamanti iniziano ai confini identificati sopra. Log locali: `work/status-callers.log`, `work/status-caller-context.log`, `work/status-caller-prefix.log`. Ghidra 12.1.4 e Temurin 21.0.13, progetto B aperto con `-readOnly -noanalysis`; nessun WARN, ERROR o eccezione nei log finali. La verifica riguarda i due ingressi isolati e non dimostra che siano gli unici chiamanti o che il percorso venga eseguito all'avvio.
+
+## AB-74 · Azzeramento software e controllo del bit 18
+
+Componente B, campione AB-1, 5 novembre 2026. La prima chiamata di 0x19db40, a 0x19db52 verso 0x19df9c, azzera dieci parole a 32 bit: 0x6800cd10, 0x6800cd08, 0x6800cd0c, 0x6800cd04, 0x6800cc50, 0x6800cc44, 0x6800cd00, 0x6800cc40, 0x6800cc4c e 0x6800cc48. Azzera inoltre sette byte: 0x6800cf1f, 0x6800cf1e, 0x6800cf1d, 0x6800cf1b, 0x6800cf1c, 0x6800cf17 e 0x6800cf14. Il selettore 0x6800cf1e di AB-63 viene quindi azzerato in questo percorso prima della seconda chiamata.
+
+[D90StatusSetup.java](../ghidra/D90StatusSetup.java) entra a 0x19db40 ed esegue il prefisso fino all'ingresso di 0x19e020, senza eseguire quest'ultima. Due casi riempiono [0x6800cc40, 0x6800cf20) con 0x55 oppure 0xaa: il confronto dell'intero intervallo verifica le scritture elencate e la conservazione degli altri byte al suo interno. Non si afferma l'assenza di scritture fuori dall'intervallo, come quelle dello stack.
+
+La seconda chiamata a 0x19db54 entra in 0x19e020. Il listato mostra una chiamata a 0x19e0fa, un controllo del nibble basso della mezza parola 0x50000004 e ulteriori chiamate a 0x1a0322 (nel ramo diverso da 1), 0x1a0414, 0x1a0156 e 0x1a03d8. A 0x19e064 prepara INT 0x40 con R4=2 e R12=-85. Nel seguito compaiono la lettura di 0x63000024 con maschera 0x10000 e chiamate a 0x19d864 per la decisione del ciclo. Questi servizi e l'intero corpo non sono stati eseguiti in questa fase: non viene simulato un ritorno riuscito per raggiungere il controllo seguente.
+
+Una seconda prova entra separatamente a 0x19db56, dopo quella chiamata, ed esegue la lettura originale tramite 0x1a011a e la selezione del ramo. Il bit controllato è 18 (0x00040000), distinto dal bit 16 usato nel corpo precedente.
+
+| Parola sintetica a 0x63000024 | Confine raggiunto, prima di eseguire la funzione | Effetto sul byte a 0x63000028 |
+| --- | --- | --- |
+| 0 | 0x1a03d8 con R4=0 | 0xa4 conservato |
+| 0x00040000 | 0x19e68e | 0xa4 diventa 0xa5 |
+| 0x00080000 | 0x1a03d8 con R4=0 | 0xa4 conservato |
+| 0x000c0000 | 0x19e68e | 0xa4 diventa 0xa5 |
+
+Il ramo con bit 18 acceso esegue BORL 1 a 0x19db94: l'operazione riguarda il byte all'indirizzo 0x63000028. I tre byte successivi inizializzati a 0x55, 0x66, 0x77 restano invariati. Il registro letto resta invariato in tutti e quattro i casi. Il ramo con bit spento chiama 0x1a03d8 prima di scrivere il codice 0x10 e aggiornare lo stato: la prova si ferma prima della chiamata e non attribuisce a quel seguito un esito emulativo.
+
+Le due prove del prefisso e le quattro prove isolate del controllo passano. [D90StatusSetupContext.java](../ghidra/D90StatusSetupContext.java) conserva le finestre statiche consultate; log locali `work/status-setup-context.log` e `work/status-setup.log`. Ghidra 12.1.4, Temurin 21.0.13, progetto B in `-readOnly -noanalysis`, nessun WARN, ERROR o eccezione nei log finali. Tutti gli ingressi sono sintetici; i limiti sono 150 passi per il prefisso e 50 per il controllo. Non si identifica il segnale fisico corrispondente al bit 18 né si collega temporalmente la prova isolata al completamento reale di 0x19e020. Prossimo passo: esaminare 0x19e0fa e le dipendenze della preparazione 0x19e020.
+
+## AB-75 · Due uscite dalla prima attesa della preparazione
+
+Componente B, campione AB-1, 5 novembre 2026. La funzione 0x19e020 chiama 0x19e0fa a 0x19e026. Quest'ultima imposta con OR il bit 0x100 della parola a 0x63000100 (chiamata a 0x19e116), poi chiama 0x19d856, che richiama 0x404ae. Il corpo a 0x404ae carica in R4 la parola a 0x68000114 e ritorna: in questo tratto non richiede un servizio OS. Il valore iniziale viene conservato in R8; una variabile locale è impostata a 2.
+
+Prima di leggere il bit, a 0x19e152 viene chiamata 0x19d864 con R4=1000, R5=valore iniziale e R6=puntatore alla variabile locale. Il corpo di AB-72 confronta la differenza fra il valore corrente letto tramite 0x404ae e quello iniziale con la soglia: sotto soglia restituisce zero; a soglia raggiunta decrementa la variabile se non è zero e restituisce zero; quando è già zero restituisce uno. La natura e l'unità del valore a 0x68000114 restano da identificare, quindi 1000 non viene convertito in millisecondi.
+
+Se la funzione restituisce zero, 0x19e128–0x19e142 legge 0x63000100 e ritorna quando il bit 0x100 è spento, altrimenti ripete il controllo. Un risultato diverso da zero da 0x19d864 porta invece direttamente all'epilogo. Il ritorno a 0x19e028 non garantisce quindi che il bit sia stato cancellato. La parola periferica non viene nuovamente controllata dal chiamante prima della lettura successiva della mezza parola 0x50000004.
+
+[D90SetupWait.java](../ghidra/D90SetupWait.java) parte dall'ingresso 0x19e020 e attraversa la prima chiamata fino al ritorno a 0x19e028, dove si ferma. Inizializza 0x63000100 a 0x80000000 e 0x68000114 a zero. Non sostituisce funzioni o risultati di ritorno: modifica esplicitamente la RAM sintetica in due punti dichiarati, per rappresentare due scenari distinti.
+
+| Scenario sintetico | Intervento dello script | Chiamate a 0x19d864 | Passaggi per la lettura a 0x19e128 | Stato finale a 0x63000100 |
+| --- | --- | --- | --- | --- |
+| Bit cancellato | Prima della prima lettura a 0x19e128, scrive 0x80000000 nello stato | 1 | 1 | 0x80000000 |
+| Contatore avanzato | Al primo ingresso in 0x19e144, scrive 1000 a 0x68000114 e lo mantiene | 3 | 2 | 0x80000100 |
+
+Entrambi i casi raggiungono 0x19e028 entro il limite di 500 passi. La prova verifica la precedente impostazione del bit, il punto finale, i conteggi e le parole finali. Il secondo scenario esercita due decrementi della variabile locale e una terza chiamata che permette l'uscita con il bit ancora acceso. Non è una simulazione temporale della fotocamera, non dimostra chi aggiorni 0x68000114 e non prova che la periferica cancelli autonomamente il bit. Non sono coperti tutti i valori del contatore, il suo riporto o il resto di 0x19e020.
+
+[D90SetupDependencies.java](../ghidra/D90SetupDependencies.java) conserva le finestre statiche delle dipendenze. Log locali: `work/setup-dependencies.log` e `work/setup-wait.log`. Esecuzioni con Ghidra 12.1.4 e Temurin 21.0.13, progetto B in `-readOnly -noanalysis`; nessun WARN, ERROR o eccezione nei log finali. Prossimo passo: proseguire da 0x19e028 attraverso le configurazioni fino al primo servizio OS a 0x19e064, conservando la distinzione fra i due esiti della prima attesa.
+
+## AB-76 · Preparazione continua fino al primo servizio OS
+
+Componente B, campione AB-1, 5 novembre 2026. [D90SetupConfig.java](../ghidra/D90SetupConfig.java) estende la sequenza di AB-75: entra a 0x19e020, esegue tutte le chiamate originali del prefisso e si ferma prima di INT 0x40 a 0x19e064. Non esegue il servizio né simula il suo ritorno. I sei casi combinano i due scenari della prima attesa di AB-75 con tre mezze parole iniziali a 0x50000004: 0xab01, 0xab04 e 0xab00.
+
+La decisione a 0x19e036 salta 0x1a0322 quando il nibble basso vale 1. Negli altri due casi provati chiama 0x1a0322 con R4=0, che imposta il nibble a 1 preservando i dodici bit alti. La successiva 0x1a0414 applica OR 0xf00 alla parola 0x63000028, poi 0x1a0156 con R4=0 cancella il bit 0x02 della stessa parola.
+
+La chiamata a 0x1a03d8 con R4=1 attraversa 0x1a0382, che usa di nuovo 0x19d856 e 0x19d864. Qui il registro sintetico 0x63000024 vale zero: dopo il primo controllo della soglia, la lettura dei due bit bassi permette l'uscita dal ciclo. Il seguito cancella il bit 0x04 nella parola a 0x6300002c. Al ritorno, il ramo R4 originale=1 di 0x1a03d8 imposta il bit 0x08 del byte 0x50000105. Il byte software 0x6800cf1f inizializzato a 0xa5 rimane invariato in questo ramo.
+
+| Elemento | Ingresso sintetico | Valore al confine 0x19e064 |
+| --- | --- | --- |
+| Mezza parola 0x50000004 | 0xab01, 0xab04 oppure 0xab00 | 0xab01 |
+| Parola 0x63000028 | 0xaaaaaaaa | 0xaaaaafa8 |
+| Parola 0x6300002c | 0xffffffff | 0xfffffffb |
+| Parola 0x63000024 | 0 | 0 |
+| Byte 0x50000105 | 0x52 | 0x5a |
+| Byte 0x6800cf1f | 0xa5 | 0xa5 |
+| R4 / R12 | Registri preparati dal firmware | 2 / -85 |
+
+Le asserzioni conservano anche quelle di AB-75: impostazione e stato finale del bit 0x100 a 0x63000100, valore finale a 0x68000114 e conteggi della prima attesa. Si verificano inoltre zero/una chiamata a 0x1a0322 secondo il nibble e un passaggio per la lettura a 0x1a0398. Il limite è 800 passi per caso. Nel caso di cancellazione del bit lo script modifica la RAM prima della lettura a 0x19e128; nel caso di avanzamento scrive 1000 a 0x68000114 al primo passaggio in 0x19e144. Questi interventi restano ingressi sintetici espliciti. Non vi sono ulteriori interventi durante la seconda attesa: il valore del contatore rimane quello raggiunto e il registro 0x63000024 è inizializzato a zero.
+
+Entrambi gli esiti della prima attesa raggiungono il medesimo confine OS con le configurazioni in tabella; nel caso di avanzamento il bit della prima attesa resta acceso. Non si conclude che i due scenari siano equivalenti sull'hardware. Non sono coperti gli altri valori del nibble, la seconda attesa con bit bassi accesi, l'esecuzione del servizio -85 o il resto della preparazione.
+
+Log locale `work/setup-config.log`: sei casi passati, nessun WARN, ERROR o eccezione. Ambiente Ghidra 12.1.4, Temurin 21.0.13, programma B esistente aperto con `-readOnly -noanalysis`. RAM e periferiche sono sintetiche, senza modello temporale della fotocamera. Prossimo passo: identificare il servizio -85 e i suoi vincoli prima di estendere l'esecuzione oltre 0x19e064.
+
+## AB-77 · Destinazione e precondizioni iniziali del servizio -85
+
+Componente B, campione AB-1, 5 novembre 2026. Applicando il dispatcher di AB-62 al selettore -85, la voce è a 0x40672 + 2×(-85) = 0x405c8. La mezza parola con segno vale 0x08ba e seleziona 0x40f2c. [D90DelayService.java](../ghidra/D90DelayService.java) legge la voce e stampa la finestra statica [0x40f2c, 0x40fcc). Il nome del file non identifica formalmente il servizio: una funzione di attesa/ritardo è un'interpretazione da approfondire, non un simbolo recuperato.
+
+Il corpo salva RP e confronta il byte a FP+0x4d con 0x1f. Se differisce, salta a 0x41000. Se coincide, distingue l'argomento R4: negativo porta a 0x40f82, zero a 0x40f7c, positivo legge la parola a FP+0x30 in R12 e sostituisce FP con il puntatore letto a 0x68000000, poi chiama 0x40bec. Il ramo positivo è quello pertinente all'argomento 2 di AB-76. La natura precisa del byte salvato, del campo +0x30 e del puntatore globale non è stabilita dalla sola prova.
+
+Il seguito statico del ramo positivo scrive campi della struttura puntata, imposta la parola +8 a 0x00020004, chiama 0x418a0 e aggiorna puntatori a offset +0 e +4. Questa struttura è compatibile con inserimento in una coda del sistema operativo, ma la sua gestione completa, il risveglio e il ritorno al chiamante restano da verificare. Gli epiloghi locali di zero e negativo caricano rispettivamente 0 e 0xdf in R12 nel delay slot; qui non vengono interpretati come codici OS formali.
+
+[D90Service85.java](../ghidra/D90Service85.java) verifica la mezza parola e parte dal dispatcher a 0x406b6 con R12=-85. Usa un frame sintetico a 0x81001000, stack a 0x81004000, parola +0x30=0x1234 e puntatore globale 0x68000000=0x81002000. Registra il passaggio per 0x40f2c e si ferma ai confini seguenti, entro 60 passi:
+
+| Byte frame+0x4d | R4 | Confine raggiunto, prima dell'istruzione |
+| --- | --- | --- |
+| 0x1f | 2 | 0x40bec |
+| 0x1f | 0 | 0x40f7c |
+| 0x1f | -1 | 0x40f82 |
+| 0 | 2 | 0x41000 |
+
+Nel caso positivo verifica anche FP=0x81002000 e R12=0x1234. Non esegue 0x40bec, gli epiloghi o il ramo a 0x41000; non simula il ritorno di alcuna funzione. Il frame viene preparato direttamente, quindi la prova non copre INT 0x40, la costruzione del frame dal processore o il prefisso del gestore prima di 0x406b6. Non collega ancora in continuità AB-76 alla gestione del servizio.
+
+Log locali `work/delay-service.log` e `work/service85.log`. Ghidra 12.1.4, Temurin 21.0.13, programma B esistente in `-readOnly -noanalysis`. I quattro casi finali passano senza WARN, ERROR o eccezioni. Una prima esecuzione segnalava letture non inizializzate dei registri S e I in ANDCCR: lo script finale li inizializza esplicitamente a zero. Rimangono da studiare 0x40bec e 0x418a0, la costruzione reale del frame e il meccanismo che permette la ripresa della preparazione. Non è verificata alcuna durata temporale.

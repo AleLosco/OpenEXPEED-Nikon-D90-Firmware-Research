@@ -5,6 +5,7 @@ import ghidra.app.script.GhidraScript;
 import java.nio.ByteBuffer;
 
 public class D90AtamInterrupt extends GhidraScript {
+    private int passedCases;
     private void put(EmulatorHelper cpu, long address, int value) {
         cpu.writeMemory(toAddr(address), ByteBuffer.allocate(4).putInt(value).array());
     }
@@ -38,6 +39,10 @@ public class D90AtamInterrupt extends GhidraScript {
                         word(cpu, 0x63000030) != (handledBit == 0 ? status : handledBit) ||
                         word(cpu, 0x6800cd00) != (0x800 | handledBit))
                         throw new IllegalStateException("Unexpected branch, arguments or MMIO");
+                    passedCases++;
+                    println(String.format("Case %d mask=0x%x status=0x%x selector=0x%x entered=%s stop=0x%x R5=0x%x finalStatus=0x%x",
+                        passedCases, mask, status, selector, entered, pc,
+                        cpu.readRegister("R5").intValue(), word(cpu, 0x63000030)));
                     return;
                 }
                 if (!cpu.step(monitor)) throw new IllegalStateException(cpu.getLastError());
@@ -49,6 +54,7 @@ public class D90AtamInterrupt extends GhidraScript {
     }
 
     public void run() throws Exception {
+        passedCases = 0;
         long entry = currentProgram.getMemory().getInt(toAddr(0xdff4c));
         if (entry != 0x42de8) throw new IllegalStateException("Vector mismatch");
         for (int selector : new int[]{0x12,0x19,0x22,0x23})
@@ -58,6 +64,6 @@ public class D90AtamInterrupt extends GhidraScript {
         check(entry, 0x32, 0x32, 0x22, 0x10, false);
         check(entry, 0x22, 0x22, 0x22, 0x20, false);
         check(entry, 0x32, 2, 0x22, 2, true);
-        println("Vector 0x2c and ten interrupt dispatch cases passed");
+        println("Vector 0x2c and " + passedCases + " interrupt dispatch cases passed");
     }
 }

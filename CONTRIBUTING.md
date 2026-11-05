@@ -37,3 +37,7 @@ python3 ghidra/prepare.py /percorso/D90_0101.bin --component A > local/D90-A.hex
 ```
 
 Usare un nome di progetto temporaneo non esistente. `-deleteProject` elimina il progetto temporaneo al termine; non usarlo sul proprio database di ricerca. Per B generare l’HEX con `--component B`, scegliere un altro nome di progetto e sostituire gli script con `D90OutputByte.java`, `D90BTransaction.java` e `D90BCallback34.java`, `D90BCallback34Effects.java`, `D90BStateGate.java`, `D90BMaskConsumers.java`, `D90BMessage0B.java`, `D90BHardwareSequence.java`. Ghidra e il profilo FR60 devono essere già installati e Java configurato secondo la propria installazione.
+
+## Prove locali successive alla rettifica AB-70
+
+Sul programma B, gli script `D90StatusReset.java`, `D90StatusCallerPrefix.java`, `D90StatusSetup.java`, `D90SetupWait.java` e `D90SetupConfig.java` riproducono rispettivamente le prove AB-72–AB-76. L'ultimo si ferma prima del servizio OS a 0x19e064. Le modifiche sintetiche del contatore e dello stato periferico sono esplicitate nelle prove AB-75–AB-76; non rappresentano osservazioni hardware. Le scansioni e i listati statici associati sono collegati nelle rispettive sezioni di [communication-topology.md](docs/communication-topology.md). Per il programma locale esistente usare `-process nome-programma -readOnly -noanalysis`, con `-scriptPath` alla directory `ghidra/` e `-postScript` allo script scelto. Controllare sempre il log oltre al codice d'uscita.

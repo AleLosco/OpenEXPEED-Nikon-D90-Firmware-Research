@@ -11,7 +11,7 @@ Independent, evidence-led research into the Nikon D90 firmware update packages, 
 - The combined A/B update package has been separated into its A and B regions, with boundaries and per-region checksums tied to observed update code ([AB-11](docs/update-and-flash.md#ab-11)).
 - The L sample decodes into 307 records under the documented recurrence; the record fields and trailing data are not fully understood, and no executable code has been established ([L-1](docs/firmware-formats.md#l-1), [L-2](docs/firmware-formats.md#l-2)).
 - Selected B startup and NOR flash programming paths have been followed statically, with bounded instruction-level experiments against simulated memory ([AB-15–AB-18](docs/update-and-flash.md#ab-15)).
-- Isolated experiments cover selected A/B communication handlers. B-side findings AB-43–AB-61 trace selected state, callback, buffer and ATAM communication paths. The newer ATAM results trace a command through selector 0x22, an interrupt vector, and a two-bit OS wait predicate. Peripheral event timing and the complete camera communication model remain unresolved ([AB-30–AB-42](docs/communication-analysis.md#ab-30), [AB-43–AB-70](docs/communication-topology.md#ab-43--due-produttori-del-byte-di-abilitazione)).
+- Isolated experiments cover selected A/B communication handlers. B-side findings AB-43–AB-77 trace selected state, callback, buffer and ATAM paths. Recent work follows selector 0x22 through the interrupt vector, corrects the AB-70 state-zero case, maps accesses to the status register, and reaches the OS service -85 using synthetic frames. Hardware event timing, the OS queue behavior, and the complete camera communication model remain unresolved ([AB-30–AB-42](docs/communication-analysis.md#ab-30), [AB-43–AB-77](docs/communication-topology.md#ab-43--due-produttori-del-byte-di-abilitazione)).
 
 ## Tools and materials
 
@@ -42,7 +42,7 @@ Run the synthetic parser and digest-gate tests with `python3 -m unittest discove
 - [Update package and flash path](docs/update-and-flash.md): update selection, validation, flash operations, and associated display paths (AB-6–AB-23).
 - [Boot analysis and Ghidra work](docs/boot-and-ghidra.md): B-image import and startup analysis (AB-24–AB-29).
 - [Communication analysis](docs/communication-analysis.md): A/B transport paths and isolated experiments (AB-30–AB-42).
-- [Communication topology and callback details](docs/communication-topology.md): external comparison and expanded evidence for AB-38–AB-70.
+- [Communication topology and callback details](docs/communication-topology.md): external comparison and expanded evidence for AB-38–AB-77.
 - [Related projects](docs/related-projects.md): external projects reviewed for relevance.
 
 For the current research status, see [STATUS.md](STATUS.md). To reproduce Ghidra work or submit a finding, see [CONTRIBUTING.md](CONTRIBUTING.md).
