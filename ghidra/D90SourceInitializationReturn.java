@@ -13,14 +13,21 @@ import java.util.HashSet;
 public class D90SourceInitializationReturn extends D90SupervisorStack {
  HashSet<Long> seen=new HashSet<>();int inspected=0;
  void inspect(Varnode v){if(v!=null && v.isRegister())require(v.getOffset()+v.getSize()<=8 || v.getOffset()>=16,"Direct SSP/USP access");}
+ int stepLimit(){return 1200;}
+ long startAddress(){return 0x40738;}
+ int counterBeforeService(boolean high){return high?0x11112222:0x33334444;}
  void until(EmulatorHelper c,PseudoDisassembler d,long stop)throws Exception{
-  int n=0;while(reg(c,"PC")!=stop && n++<1200){
+  int n=0;while(reg(c,"PC")!=stop && n++<stepLimit()){
    seen.add(reg(c,"PC"));var i=d.disassemble(c.getExecutionAddress());require(i!=null,"Decode");
    for(var op:i.getPcode()){inspect(op.getOutput());for(var v:op.getInputs())inspect(v);}
    inspected++;require(c.step(monitor),"Step: "+c.getLastError());
   }
   require(reg(c,"PC")==stop,"Step bound");
  }
+ void afterInitialization(EmulatorHelper c,PseudoDisassembler d,ProgramDB p)throws Exception{}
+ void beforeInitialization(EmulatorHelper c,ProgramDB p,int pattern)throws Exception{}
+ long[][] extraSyntheticWindows(){return new long[0][];}
+ long[][] extraWindows(){return new long[0][];}
  public void run()throws Exception{
   String[] args=getScriptArgs();require(args.length==1,"Pass isolated fr60.ldefs");
   var ctor=SleighLanguageProvider.class.getDeclaredConstructor(ResourceFile.class);ctor.setAccessible(true);
@@ -35,8 +42,15 @@ public class D90SourceInitializationReturn extends D90SupervisorStack {
      byte[] b=new byte[(int)(w[1]-w[0])];currentProgram.getMemory().getBytes(toAddr(w[0]),b);
      p.getMemory().createInitializedBlock("original_"+Long.toHexString(w[0]),a.getAddress(w[0]),b.length,(byte)0,monitor,false);p.getMemory().setBytes(a.getAddress(w[0]),b);
     }
+    for(long[] w:extraWindows()){
+     byte[] b=new byte[(int)(w[1]-w[0])];currentProgram.getMemory().getBytes(toAddr(w[0]),b);
+     p.getMemory().createInitializedBlock("extra_"+Long.toHexString(w[0]),a.getAddress(w[0]),b.length,(byte)0,monitor,false);
+     p.getMemory().setBytes(a.getAddress(w[0]),b);
+    }
     for(long[] w:new long[][]{{0x40000000L,0x40200000L},{0x50000000L,0x50000100L},{0x6f000000L,0x6f010000L},{0,0x1000},{0x6b000000L,0x6b000100L},{0x81003000L,0x81005000L},{0x68000110L,0x68000118L}})
      p.getMemory().createInitializedBlock("synthetic_"+Long.toHexString(w[0]),a.getAddress(w[0]),w[1]-w[0],(byte)0,monitor,false);
+    for(long[] w:extraSyntheticWindows())
+     p.getMemory().createInitializedBlock("extra_ram_"+Long.toHexString(w[0]),a.getAddress(w[0]),w[1]-w[0],(byte)0,monitor,false);
    }finally{p.endTransaction(tx,true);}
    int cases=0;var d=new PseudoDisassembler(p);
    for(int seed:new int[]{0,255})for(int stackSeed:new int[]{0x5a,0xa5})for(int ilm:new int[]{0,31}){
@@ -44,15 +58,16 @@ public class D90SourceInitializationReturn extends D90SupervisorStack {
     try{
      for(int i=0;i<13;i++)c.writeRegister("R"+i,0);
      for(String r:new String[]{"AC","FP","RP","MDL","MDH","PS","S","I","N","Z","V","C","T","D0","D1","ILM"})c.writeRegister(r,0);
-     c.writeRegister("ILM",ilm);c.writeRegister("PC",0x40738);c.writeRegister("SP",0x81004000L);c.writeRegister("SSP",0x81004000L);c.writeRegister("TBR",0xdfc00);
+     c.writeRegister("ILM",ilm);c.writeRegister("PC",startAddress());c.writeRegister("SP",0x81004000L);c.writeRegister("SSP",0x81004000L);c.writeRegister("TBR",0xdfc00);
      byte[] low=new byte[0x1000],high=new byte[0x100],stack=new byte[0x2000];Arrays.fill(low,(byte)seed);Arrays.fill(high,(byte)seed);Arrays.fill(stack,(byte)stackSeed);
      c.writeMemory(a.getAddress(0),low);c.writeMemory(a.getAddress(0x6b000000),high);c.writeMemory(a.getAddress(0x81003000L),stack);
      byte[] bank=new byte[0x200000],small=new byte[0x100],aux=new byte[0x10000];Arrays.fill(bank,(byte)seed);Arrays.fill(small,(byte)seed);Arrays.fill(aux,(byte)seed);
      c.writeMemory(a.getAddress(0x40000000L),bank);c.writeMemory(a.getAddress(0x50000000L),small);c.writeMemory(a.getAddress(0x6f000000L),aux);
      put(c,a,0x68000110,0x11112222);put(c,a,0x68000114,0x33334444);
+     beforeInitialization(c,p,stackSeed);
      seen.clear();until(c,d,0x10094e);
      require(c.readRegister("R12").intValue()==-83 && reg(c,"SP")==0x81003fecL && reg(c,"R4")==0x81003fecL,"Prefix service arguments");
-     require(word(c,a,0x68000110)==0x11112222 && word(c,a,0x68000114)==0x33334444,"Counter sentinel before service");
+     require(word(c,a,0x68000110)==counterBeforeService(true) && word(c,a,0x68000114)==counterBeforeService(false),"Counter sentinel before service");
      byte[] descriptor=c.readMemory(a.getAddress(0x81003fecL),8);
      require(Arrays.equals(descriptor,new byte[]{(byte)stackSeed,(byte)stackSeed,0,0,0,0,0,0}),"Prefix descriptor");
      String[] regs={"R0","R1","R2","R3","R4","R5","R6","R7","R8","R9","R10","R11","AC","FP","RP","MDL","MDH"};
@@ -82,6 +97,7 @@ public class D90SourceInitializationReturn extends D90SupervisorStack {
      require(Short.toUnsignedInt(java.nio.ByteBuffer.wrap(c.readMemory(a.getAddress(0x400c0004),2)).getShort())==0xc000,"400c0004");
      for(long addr:new long[]{0x4000d240L,0x4000d340L,0x4000d440L,0x4000d540L})require(Short.toUnsignedInt(java.nio.ByteBuffer.wrap(c.readMemory(a.getAddress(addr),2)).getShort())==8,"Channel halfword");
      require(c.readMemory(a.getAddress(0x4001ff00),2)[0]==0 && c.readMemory(a.getAddress(0x4001ff00),2)[1]==0,"Byte clears");
+     afterInitialization(c,d,p);
      println("seed="+seed+" stack="+stackSeed+" ILM="+ilm+": initialization returned to 0x40740; tail writes verified; raw SSP remains 0x81003fec");cases++;
     }finally{c.dispose();}
    }

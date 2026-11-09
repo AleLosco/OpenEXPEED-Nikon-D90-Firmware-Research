@@ -88,3 +88,27 @@ Per AB-95 eseguire `D90Service83Context.java` e `D90Service83.java` sul programm
 Per AB-96 eseguire `D90SourceServiceIntegrated.java` sul programma B in sola lettura, con l’argomento assoluto `fr60.ldefs` di AB-85 e gli script AB-86/87 nello scriptPath. Attesi otto casi fino a 0x100950 e 4208 istanze di passo controllate. Il banco di prova sincronizza esplicitamente SSP prima di INT e dopo RETI; i byte del blocco sono quelli costruiti dal prefisso. Le chiamate successive d’inizializzazione non sono eseguite.
 
 Per AB-97 eseguire `D90SourceTailContext.java` e `D90SourceInitializationReturn.java`; il secondo richiede il linguaggio isolato e le dipendenze di AB-96. Attesi otto ritorni a 0x40740 e 5272 istanze di passo controllate. Le periferiche sono RAM; il ritorno riguarda una chiamata d’inizializzazione, non l’avvio completo. Al confine finale SP=0x81004000 ma SSP resta 0x81003fec nel modello, come esplicitamente verificato.
+
+
+Per AB-98 eseguire `D90InitializationVectorBoundary.java` sul programma B con `-readOnly -noanalysis`, passando il percorso assoluto del linguaggio isolato `fr60.ldefs` di AB-85. Nello stesso scriptPath devono essere presenti `D90SourceInitializationReturn.java`, `D90SupervisorStack.java` e `D90Int40Adapter.java`. Attesi otto casi, 5336 passi e il riepilogo AB-98. Il test eredita le verifiche AB-97 e si ferma prima della chiamata a 0x4049e; il frame d'ingresso del vettore 0x18 è sintetico. Non è un test di accettazione hardware dell'interrupt.
+
+
+Per AB-99 usare `D90InitializationQueuePreconditions.java` con le opzioni e il linguaggio di AB-98, lasciando tutti gli script della catena AB-97/98 e AB-86/87 nello scriptPath. Attesi otto casi, 5336 passi e riepilogo AB-99. I pattern delle strutture OS sono iniettati prima dell'inizializzazione e confrontati al ritorno e al confine CALL; la routine della coda non viene eseguita. Consultare il log anche quando il processo termina con codice zero.
+
+
+Per AB-100 eseguire `D90ListInitializationCandidates.java` e `D90ListInitialization.java` sul programma B con `-readOnly -noanalysis`. Il secondo richiede `D90QueueAdvance.java` nello scriptPath e non richiede argomenti o linguaggio sperimentale. Attesi dato originale 0x5c400=32 e due casi superati: il ciclo costruisce 33 sentinelle. La scansione produce candidati grezzi, non una copertura completa dei riferimenti. I due ingressi delle routine nella prova sono imposti dal banco.
+
+
+Per AB-101 eseguire `D90OsInitializationContext.java` e `D90OsRecordConstructor.java` sul programma B con `-readOnly -noanalysis`, senza argomenti. Il secondo richiede `D90QueueAdvance.java` nello scriptPath; attesi 78 casi (39 descrittori originali per due pattern). Non esegue il chiamante 0x408be o i rami di inserimento. Non richiede il linguaggio ILM sperimentale.
+
+
+Per AB-102 eseguire `D90OsInitializationRecords.java` sul programma B con `-readOnly -noanalysis`, senza argomenti e con `D90QueueAdvance.java` nello scriptPath. Attesi due scenari, ciascuno con 39 costruzioni, due inserimenti, 38 blocchi ausiliari e bitmap 0x80000000. Il test usa i descrittori originali e le routine dei costruttori, ma imposta RAM, bitmap iniziale e transizioni fra i tre ingressi; non richiede il linguaggio ILM sperimentale.
+
+
+Per AB-103 eseguire `D90OsInitializationRemaining.java` sul programma B con `-readOnly -noanalysis`, senza argomenti. Richiede `D90OsInitializationRecords.java` e `D90QueueAdvance.java` nello scriptPath. Attesi due scenari e 14 ritorni dalle sette routine aggiuntive; i confronti coprono la regione OS di 4096 byte, i contesti preparati e il byte 0x44. Le transizioni PC/RP fra routine restano sintetiche; non è ancora un'esecuzione continua del blocco d'avvio.
+
+
+Per AB-104 eseguire `D90OsStartupContinuous.java` sul programma B con `-readOnly -noanalysis`, senza argomenti e con `D90QueueAdvance.java` nello scriptPath. Attesi due scenari da 12125 passi e riepilogo AB-104. Il percorso continuo si ferma prima di 0x40738; i registri e la RAM iniziali sono sintetici, ma non si effettuano scritture del banco durante i passi. Non richiede il modello ILM sperimentale.
+
+
+Per AB-105 eseguire `D90OsPeripheralInitialization.java` sul programma B con `-readOnly -noanalysis`, passando il percorso assoluto di `fr60.ldefs` isolato di AB-85. Tenere `D90SourceInitializationReturn.java`, `D90SupervisorStack.java` e `D90Int40Adapter.java` nello scriptPath. Attesi otto scenari, 102272 istanze di passo controllate e riepilogo AB-105. Il prefisso OS e la chiamata periferica condividono memoria; INT e SSP restano adattamenti espliciti. Consultare il log oltre al codice di uscita. Non è un avvio completo né un test hardware.

@@ -10,3 +10,16 @@
 __pycache__/
 .DS_Store
 local/
+
+# Local research artifacts and credentials (review tracked files separately)
+work/
+tmp/
+*.log
+*.dump
+*.raw
+*.sla
+*.tmp
+*.bak
+.env
+.env.*
+!.env.example

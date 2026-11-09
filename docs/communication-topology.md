@@ -1020,3 +1020,168 @@ Il builder verifica `fr60.sinc`, `fr60.slaspec`, `fr60.pspec`, `fr60.cspec`, `fr
 Verifica Python: 11 test superati, di cui quattro nuovi metodi sul builder con input sintetici (cinque sottocasi di alterazione, file mancante, output interno alla sorgente, costruzione valida/digest e rifiuto di output esistente). Questi test non validano il linguaggio FR60. La copia reale `work/fr60-ilm5-review` è stata costruita dai cinque input installati verificati; la compilazione riporta il consueto avviso di quattro costruttori NOP.
 
 Riesecuzione locale Ghidra 12.1.4 / Temurin 21.0.13, programma B in `-readOnly -noanalysis`, log `work/review-ab85-ab86-ab97-final.log`: AB-85 128 sequenze, AB-86 20 positivi e sei rifiuti, AB-97 otto scenari e 5272 passi controllati, senza WARN o ERROR nel log finale. La prima esecuzione (`work/review-ab85-ab86-ab97.log`) aveva segnalato registri non inizializzati nelle nuove letture di controllo dei casi negativi; il banco ora li inizializza esplicitamente. Restano i limiti di RAM periferica sintetica, adattamento INT/SSP esplicito e assenza di temporizzazione/hardware. Non sono state rieseguite tutte le prove AB-78–AB-97 e non è una riproduzione indipendente su un'altra macchina.
+
+
+## AB-98 · Dall'inizializzazione al prefisso del vettore 0x18
+
+Componente B, campione AB-1, 9 novembre 2026. [D90InitializationVectorBoundary.java](../ghidra/D90InitializationVectorBoundary.java) estende AB-97 attraverso due hook senza duplicarne il banco: finestre originali aggiuntive e verifica dopo il ritorno. Gli hook predefiniti in `D90SourceInitializationReturn.java` sono vuoti; le asserzioni precedenti restano attive. I byte provengono dal programma Ghidra locale, non da una nuova lettura indipendente del contenitore Nikon.
+
+La matrice conserva otto scenari: RAM periferica iniziale 0/0xff, stack 0x5a/0xa5 e ILM 0/31. Al ritorno a `0x40740`, dopo tutti i callee di AB-97, verifica le halfword `0x48=0x9e34` e `0x4e=0x001b`, SP `0x81004000`, S=0 e contatore `0x68000110/114` azzerato. Questo colma la lacuna sul valore finale di 0x4e; non basta la sola scrittura iniziale già osservata in AB-93.
+
+Sono copiate inoltre le finestre `[0x4048a,0x404ae)` e `[0xdff9c,0xdffa0)`, verificando la voce `0xdff9c=0x4048a`. Il banco costruisce esplicitamente un frame sintetico con PS a SP−4 e PC di ritorno `0x40740` a SP−8; imposta SP e SSP a SP−8, azzera I/S nel contesto attivo e trasferisce PC al vettore. Questo sostituisce l'ingresso esterno, senza controllo di priorità o accettazione hardware. Lo stato SSP separato dopo l'inizializzazione è già verificato da AB-97 e viene sincronizzato esplicitamente durante questa costruzione.
+
+Otto istruzioni originali del wrapper per caso conducono al PC `0x4049e`, prima di CALL. Le asserzioni verificano:
+
+- `R12=0x40a56`, SP `0x81003fb0`, frame PC/PS sintetico conservato;
+- halfword `0x4e`: `0x001b → 0x001a`, con i due byte prima e dopo invariati;
+- halfword `0x48` ancora `0x9e34` e contatore ancora zero.
+
+Il metodo ereditato controlla anche l'assenza di accessi p-code diretti a SSP/USP nei passi ispezionati. Log locale `work/initialization-vector-boundary.log`: otto casi superati, **5336 passi controllati** (5272 dell'inizializzazione più 64 del wrapper), senza WARN/ERROR/eccezioni. Ghidra 12.1.4, linguaggio isolato `work/fr60-ilm5-review/fr60.ldefs`, programma B `-readOnly -noanalysis`. I riepiloghi AB-97 nel log attestano le asserzioni ereditate; il totale di questo run include il prefisso aggiuntivo AB-98.
+
+Il risultato collega due tratti software sulla stessa memoria sintetica, senza reimpostare i valori periferici fra inizializzazione e wrapper. Non esegue la chiamata a 0x40a56, RETI del vettore 0x18 o lo scheduler; non identifica periferica, frequenza o significato elettrico di 0x4e. Il ruolo di controllo/riconoscimento dell'evento resta un'ipotesi. Prossimo passo: definire le precondizioni delle liste dopo l'inizializzazione per proseguire in 0x40a56, distinguendo stato prodotto dal firmware e strutture eventualmente sintetiche.
+
+
+## AB-99 · Precondizioni delle liste dopo l'inizializzazione delimitata
+
+Componente B, campione AB-1, 9 novembre 2026. [D90InitializationQueuePreconditions.java](../ghidra/D90InitializationQueuePreconditions.java) riusa AB-97/98 per distinguere le strutture sintetiche dei test AB-91/92 dallo stato effettivamente prodotto dalla chiamata a 0x40738. Non esegue la routine 0x40a56.
+
+Il listato già disponibile `work/queue-expiry-context.log` mostra `0x40a72: LDI:32 #0x68000118,R7`, `0x40a7c: LD @R7,FP`, confronto con R7 e salto al ramo vuoto a 0x40ae0 in caso di uguaglianza. Altrimenti legge il campo del nodo a FP+0x14. Il test precedente `D90QueueMultiple.java` costruisce esplicitamente quattro liste circolari vuote oppure popolate, con sentinelle a 0x68000010, 0x68000118, 0x68000120 e 0x68000128: tale costruzione è opera del banco, non prova dell'inizializzazione firmware.
+
+AB-99 aggiunge RAM sintetica nelle finestre `[0x68000000,0x68000110)` e `[0x68000118,0x68000138)`, adiacenti al contatore già presente. Prima dell'esecuzione inserisce pattern ripetuti 0x5a oppure 0xa5 in ciascuna coppia di parole delle quattro sentinelle, negli otto byte a 0x68000000 (puntatore task/bitmap nei test precedenti) e negli otto byte a 0x68000130 (regione contenente il flag 0x68000132). Il pattern segue quello dello stack; non è variato indipendentemente. Le altre nuove celle partono da zero sintetico.
+
+Otto scenari combinano periferiche 0/0xff, stack/pattern 0x5a/0xa5, ILM 0/31. Restano attive tutte le asserzioni AB-97/98. Al ritorno dell'inizializzazione a 0x40740 e dopo il prefisso IRQ forzato, prima di CALL a 0x4049e, tutte le regioni marcate coincidono byte per byte con gli ingressi. I puntatori delle sentinelle sono 0x5a5a5a5a o 0xa5a5a5a5, non il proprio indirizzo. Non sono quindi liste circolari vuote valide nel modello usato. Il contatore, separatamente, è stato azzerato dal servizio -83, come verificato dalle asserzioni ereditate.
+
+Questo dimostra che **nei casi esaminati il percorso delimitato non lascia quelle strutture inizializzate a liste vuote a partire dai pattern scelti**. Non dimostra assenza di scritture intermedie, assenza di letture o di inizializzazioni altrove nell'avvio. Non è una dimostrazione di bug Nikon: il percorso comincia a 0x40738, non dal reset, e le precondizioni reali del sistema operativo sono ancora da ricostruire. Non si dereferenziano i puntatori artificiali e non si esegue la coda con strutture invalide.
+
+Log locale `work/initialization-queue-preconditions.log`: otto casi superati, 5336 passi controllati, senza WARN/ERROR/eccezioni. Ghidra 12.1.4, programma B `-readOnly -noanalysis`, linguaggio isolato `work/fr60-ilm5-review/fr60.ldefs`. Gli hook aggiunti alla base AB-97 (RAM aggiuntiva e preparazione prima dell'esecuzione) sono vuoti nella classe base; nessuna nuova dipendenza. Le conclusioni restano vincolate a RAM periferica sintetica, ingresso IRQ imposto e sincronizzazione SSP esplicita. Prossimo passo: cercare il produttore delle sentinelle nelle sequenze d'inizializzazione OS precedenti o esterne alla finestra AB-97.
+
+
+## AB-100 · Produttori delle sentinelle prima della chiamata AB-97
+
+Componente B, campione AB-1, 9 novembre 2026. [D90ListInitializationCandidates.java](../ghidra/D90ListInitializationCandidates.java) cerca sei valori big endian nei blocchi inizializzati del programma locale. Occorrenze grezze: 0x68000000=96, 0x68000010=0, 0x68000110=4, 0x68000118=7, 0x68000120=5, 0x68000128=7. Solo i candidati preceduti da opcode LDI:32 allineato sono disassemblati per 22 istruzioni. I conteggi includono dati e non sono conteggi di riferimenti eseguibili. Non copre tutti gli indirizzi calcolati né dimostra raggiungibilità. Log: `work/list-initialization-candidates.log`.
+
+Il candidato 0x408a0 carica 0x68000118 in FP; le store a 0x408a6/0x408a8 scrivono FP nei campi +0/+4, poi due incrementi di otto byte producono lo stesso schema per 0x68000120 e 0x68000128 (store 0x408ac/ae e 0x408b2/b4). Il delay slot del RET:D a 0x408ba scrive -1 a FP+0x10, ossia 0x68000138.
+
+[D90ListInitialization.java](../ghidra/D90ListInitialization.java) mostra inoltre che 0x40886 legge la parola originale a 0x5c400, pari a 32, e parte da FP=0x68000008. Il ciclo 0x40894–0x4089c scrive due autoriferimenti, decrementa R0 e usa BP:D con incremento FP nel delay slot. Nel modello eseguito include lo zero: **33 sentinelle**, da 0x68000008 a 0x68000108 inclusi, passo otto. Quindi comprende anche 0x68000010, pur senza un literal autonomo di questo indirizzo.
+
+Due casi inizializzano `[0x68000000,0x68000140)` con 0x5a oppure 0xa5. Eseguono prima 0x40886 fino al ritorno sintetico 0x80000000, poi impostano esplicitamente PC=0x408a0 conservando la stessa memoria e RP. Verificano byte per byte l'intera regione: 33 coppie di autoriferimenti, le tre sentinelle aggiuntive e la parola -1 a 0x68000138; tutti gli altri byte conservano il pattern. SP=0x81004000 e RP restano invariati. I registri e il punto d'ingresso sono sintetici; nessuna istruzione del reset o della coda viene eseguita. Non si usa il linguaggio ILM sperimentale per queste routine.
+
+Il disassemblato `[0x40704,0x40750)` mostra le CALL a 0x40712→0x407f0, 0x40714→0x40878, **0x40716→0x40886 e 0x40718→0x408a0**, seguite da altre chiamate, prima del sito 0x40738 di AB-97. È evidenza statica dell'ordine nel blocco: l'intera sequenza non è stata eseguita e le chiamate intermedie possono modificare le strutture. Spiega perché l'esperimento che comincia a 0x40738 non costruisce le sentinelle da pattern artificiali (AB-99), ma non prova ancora la continuità completa fino all'interrupt.
+
+Log finale `work/list-initialization-verified.log`: due casi superati senza WARN/ERROR/eccezioni, Ghidra 12.1.4, programma B `-readOnly -noanalysis`. Il primo run esteso (`work/list-initialization-final.log`) falliva perché il test attendeva 32 sentinelle; il diagnostico `work/list-initialization-diagnostic.log` ha localizzato gli otto byte aggiuntivi a 0x68000108–0x6800010f. L'attesa è stata corretta a 33 coerentemente con il ramo inclusivo. Il precedente `work/list-initialization.log` verificava soltanto 0x408a0 in due casi. Queste sono riesecuzioni locali, non verifiche indipendenti del firmware originale autonomo.
+
+Prossimo passo: seguire le chiamate 0x4071a–0x40728 e verificare come trasformano le liste appena costruite, prima di collegarle all'inizializzazione periferica e al vettore 0x18. Restano aperti scheduler, accettazione hardware, tempi e identità delle periferiche.
+
+
+## AB-101 · Tabelle d'inizializzazione OS e costruttore dei record
+
+Componente B, campione AB-1, 9 novembre 2026. [D90OsInitializationContext.java](../ghidra/D90OsInitializationContext.java) conserva il disassemblato `[0x408be,0x40a56)`, il contesto helper `[0x41534,0x41630)` e intestazioni originali. Il termine OS descrive il ruolo software osservato, non identifica il sistema operativo commerciale o i nomi originali degli oggetti.
+
+| Chiamata nel blocco d'avvio | Routine | Tabella | Primo halfword | Passo in byte |
+|---|---|---|---:|---:|
+| 0x4071a | 0x408be | 0x5c40c | 38 | 28 |
+| 0x4071c | 0x40906 | 0x5c854 | 49 | 16 |
+| 0x4071e | 0x4092c | 0x5cb68 | 22 | 16 |
+| 0x40720 | 0x40952 | 0x5cccc | 0 | 12 |
+| 0x40722 | 0x40978 | 0x5ccd0 | 0 | 28 |
+| 0x40724 | 0x409c4 | 0x5ccd4 | 0 | 24 |
+| 0x40726 | 0x40a0a | 0x5ccd8 | 0 | 8 |
+| 0x40728 | 0x40a30 | 0x5ccdc | 0 | 8 |
+
+La prima routine aggiunge uno al valore 38 e chiama 0x41578 per ciascuno dei 39 descrittori da 0x5c410, passo 28. I primi puntatori delle tre tabelle non vuote sono rispettivamente 0x6800013c, 0x680007f0 e 0x68000b00. Per le ultime cinque tabelle, il campo stampato `first` dal diagnostico è soltanto la parola seguente l'intestazione: con conteggio zero non va interpretato come primo record valido. Le routine successive decrementano il contatore prima del corpo e saltano al ritorno se negativo; alcuni delay slot effettuano comunque letture. Il contenuto delle tabelle e questo flusso sono osservazioni statiche: non sono state eseguite tutte le otto routine.
+
+[D90OsRecordConstructor.java](../ghidra/D90OsRecordConstructor.java) esegue isolatamente 0x41578 su **tutti i 39 descrittori originali**, ciascuno con destinazione sintetica riempita di 0x5a e 0xa5: **78 casi**. Il puntatore D è letto dalla parola a inizio descrittore T; il test ne verifica l'intervallo entro la regione 0x6800013c–0x680007f0. La routine produce:
+
+| Offset rispetto a D | Risultato controllato |
+|---|---|
+| +0, +4 | D (coppia di autoriferimenti) |
+| +8 | parola 0x10 |
+| +0xc | halfword copiata da T+6 |
+| +0x10, +0x12, +0x22 | halfword zero |
+| +0x14, +0x1c | parola 0xffffffff |
+| +0x24 | T, scritta nel delay slot del ritorno |
+
+Il confronto byte per byte copre `[D−4,D+0x2c)`, verificando anche i byte non scritti, incluse guardie e campi conservati. Verifica inoltre FP=D, SP invariato e registri R5/R6/R7 uguali alle parole originali T+0x18/+0x10/+0x14. Ogni caso usa un nuovo emulatore, PC iniziale 0x41578, R2=T, RP sintetico 0x80000000 e SP sintetico 0x81004000. Non esegue la routine chiamante 0x408be né inserisce i record nelle liste. Il costruttore non scrive quindi una sentinella globale in questa prova: prepara i collegamenti interni del record.
+
+Nel seguito statico di 0x408be, i test sui bit al byte T+0xc selezionano ulteriori scritture a D+0x28 e una possibile chiamata a 0x41534. Quest'ultima contiene una chiamata a 0x4186e, già collegata all'inserimento nelle liste nei test precedenti. L'effetto complessivo di queste diramazioni sui 39 record resta da eseguire; “attivazione” è un'etichetta di lavoro, non un nome recuperato.
+
+Log `work/os-initialization-context-final.log` e `work/os-record-constructor.log`: nessun WARN/ERROR/eccezione; il secondo riporta 78 casi superati. Ghidra 12.1.4, programma B `-readOnly -noanalysis`, linguaggio installato; non occorre il modello ILM sperimentale. Le tabelle e le istruzioni provengono dal database B locale, non da una nuova verifica autonoma del contenitore Nikon. Restano aperti la sequenza continua d'avvio, lo stato finale delle liste dopo tutti i callee, l'ingresso hardware IRQ e lo scheduler. Prossimo passo: classificare i bit dei 39 descrittori ed eseguire il chiamante 0x408be con le liste inizializzate, includendo i rami a 0x41534.
+
+
+## AB-102 · Costruzione completa dei record e due inserimenti iniziali
+
+Componente B, campione AB-1, 9 novembre 2026. [D90OsInitializationRecords.java](../ghidra/D90OsInitializationRecords.java) classifica i byte a T+0xc dei 39 descrittori originali ed esegue le routine 0x40886, 0x408a0 e 0x408be, ciascuna fino al ritorno sintetico 0x80000000. PC e RP vengono reimpostati dal banco fra le tre routine, conservando la memoria; non è ancora esecuzione continua delle CALL nel blocco d'avvio.
+
+| Descrittori (indice da zero) | Byte T+0xc | Effetto verificato |
+|---|---|---|
+| 0–3, 5–37 | 0x40 | costruzione e blocco ausiliario; nessun inserimento |
+| 4 (T=0x5c480, D=0x680001ec) | 0xc0 | blocco ausiliario e inserimento nella lista indice 1, sentinella 0x68000008 |
+| 38 (T=0x5c838, D=0x680007c4) | 0x80 | nessun blocco ausiliario; inserimento nella lista indice 33, sentinella 0x68000108 |
+
+“Indice di lista” è il campo halfword T+6, copiato a D+0xc; il sorgente del test lo chiama `priority`, ma il nome e la semantica completa di priorità del sistema operativo non sono recuperati. Il record 38 può essere compatibile con un task speciale/inattivo, ma questa interpretazione non è dimostrata e non viene usata nelle asserzioni.
+
+Per ciascuno dei due pattern 0x5a/0xa5 il banco riempie `[0x68000000,0x68001000)` e lo stack di lavoro `[0x81003f00,0x81004100)`. Imposta **sinteticamente** la bitmap 0x68000004 a zero e il byte periferico 0x44 al pattern; non esegue l'azzeramento precedente a 0x407f0. Inizializza inoltre 40 byte alle due destinazioni di contesto lette dai descrittori attivi: 0x8f991204 e 0x68000ed0. Le liste sono poi costruite dalle istruzioni originali di AB-100. Nessuna struttura di lista viene corretta manualmente dopo l'ingresso in 0x408be.
+
+Il contatore di ingressi verifica **39 chiamate a 0x41578 e due a 0x41534** per scenario. Per ogni record verifica D+8 (zero per i due inseriti, 0x10 per gli altri), D+0x24=T e, per quelli non inseriti, i due autoriferimenti. I 38 blocchi ausiliari da 0x68000c60 avanzano di 16 byte: D+0x28 punta al blocco e il campo blocco+0xc torna a D; per il record senza blocco D+0x28=0xffffffff.
+
+Per i due record inseriti D+0x18 contiene la destinazione del contesto da T+0x14. Alle destinazioni si verificano le parole +0=T[+0x10], +4=0x001f0030, +8=0x4050a e +0x24=T[+0x18]. Si verificano entrambe le direzioni e la chiusura di tutte le 33 liste, oltre al mantenimento delle tre sentinelle 0x68000118/120/128. La bitmap finale è 0x80000000 e il byte 0x44 è 1 nella RAM sintetica. L'indice 33 non aggiunge un bit alla bitmap in questo percorso; il risultato corrisponde allo shift della routine 0x4186e. SP ritorna a 0x81004000. Non si afferma un confronto di tutti i byte della RAM o dei contesti, oltre ai campi e collegamenti elencati.
+
+Log finale `work/os-initialization-records-final.log`: due scenari superati senza WARN/ERROR/eccezioni, Ghidra 12.1.4, programma B `-readOnly -noanalysis`, linguaggio installato (nessun INT/RETI eseguito). Il log include T, D, byte di selezione, indice di lista e destinazione del contesto per tutti i descrittori. Il primo log `work/os-initialization-records.log` si arrestava durante la classificazione prima dell'emulazione: il limite artificiale del test 1–32 escludeva il record originale 38, indice 33. È stato corretto a 1–33 coerentemente con le 33 sentinelle AB-100; nessun descrittore firmware è stato modificato.
+
+Questo verifica la prima routine completa successiva ai costruttori delle liste. Non esegue le successive 0x40906–0x40a30, lo scheduler, il codice contenuto nei contesti preparati o un avvio completo. La denominazione “attivazione” resta una descrizione operativa dell'inserimento e preparazione del contesto. Prossimo passo: seguire le restanti tabelle d'inizializzazione e controllare se mantengono queste liste e i due inserimenti.
+
+
+## AB-103 · Restanti tabelle OS e conservazione delle liste
+
+Componente B, campione AB-1, 9 novembre 2026. [D90OsInitializationRemaining.java](../ghidra/D90OsInitializationRemaining.java) estende AB-102 con un hook dopo tutte le verifiche sui record e sulle liste. L'hook della classe base è vuoto. Nei due scenari (RAM iniziale 0x5a/0xa5), la prova conserva la stessa memoria e chiama in ordine 0x40906, 0x4092c, 0x40952, 0x40978, 0x409c4, 0x40a0a e 0x40a30, ciascuna fino al ritorno sintetico. La transizione PC/RP fra routine è ancora imposta dal banco, come in AB-102.
+
+I valori delle intestazioni originali devono corrispondere alla tabella AB-101. La routine 0x40906 usa 49 descrittori a passo 16 da 0x5c858 e destinazioni nell'intervallo `[0x680007f0,0x68000b00)`; 0x4092c usa 22 descrittori a passo 16 da 0x5cb6c e destinazioni in `[0x68000b00,0x68000c60)`. I puntatori di destinazione D vengono letti dai descrittori T originali, verificati allineati e nei rispettivi intervalli. Campi finali attesi:
+
+| Offset D | 0x40906 | 0x4092c |
+|---|---|---|
+| +0 e +4 | parole D (autoriferimenti) | parole D (autoriferimenti) |
+| +8 | halfword da T+0xc | parola da T+0xc |
+| +0xa/+0xb | conservano il valore precedente | inclusi nella parola precedente |
+| +0xc | parola T | parola T |
+
+Le cinque routine successive hanno conteggio zero nel campione e ritornano senza modificare la regione confrontata. Sono eseguiti i loro percorsi reali, inclusi i delay slot; non si afferma che non leggano memoria o che le varianti con conteggio non nullo siano verificate. Non si assegnano nomi di oggetti OS ai due gruppi senza ulteriori evidenze.
+
+Prima delle nuove routine si salva lo stato prodotto da AB-102 su tutti i **4096 byte** di `[0x68000000,0x68001000)`. Un'immagine attesa aggiorna soltanto i campi sopra elencati per ogni tabella. Dopo ciascuno dei sette ritorni si confronta l'intera regione, verificando quindi anche la conservazione di bitmap, 33 liste, tre sentinelle aggiuntive, 39 record e blocchi ausiliari già preparati. Separatamente si confrontano i 40 byte di ciascun contesto a 0x8f991204 e 0x68000ed0 e il byte periferico sintetico 0x44. SP deve restare 0x81004000 e i conteggi di costruzione/inserimento restano 39/2. Questo confronto dei valori finali non è una traccia completa di scritture né una prova di assenza di scritture fuori dalle regioni controllate.
+
+Log `work/os-initialization-remaining.log`: due scenari e **14 ritorni** dalle routine aggiuntive, senza WARN/ERROR/eccezioni. Restano attive tutte le asserzioni AB-102. Ghidra 12.1.4, programma B `-readOnly -noanalysis`, linguaggio installato, nessun argomento o modello ILM sperimentale richiesto. Le tabelle sono lette dal programma locale; non è stata effettuata una nuova validazione indipendente dei binari originali.
+
+La prova chiude il controllo isolato delle otto routine d'inizializzazione a tabelle, ma non esegue in continuità l'intero blocco d'avvio. Rimangono espliciti RAM e stack sintetici, bitmap iniziale zero e ingressi/ritorni impostati dal banco. Prossimo passo: eseguire le CALL originali del blocco 0x40704–0x40738 includendo l'azzeramento 0x407f0 e la preparazione 0x40878, verificando che producano lo stato senza queste transizioni imposte. L'integrazione successiva con AB-97/98, l'accettazione hardware dell'interrupt e lo scheduler restano aperti.
+
+
+## AB-104 · Prefisso OS continuo attraverso le CALL originali
+
+Componente B, campione AB-1, 9 novembre 2026. [D90OsStartupContinuous.java](../ghidra/D90OsStartupContinuous.java) esegue da PC=0x40704 fino a **prima dell'istruzione a 0x40738**, senza ulteriori scritture del banco su registri o memoria durante i passi. Sono attraversati 0x407f0, 0x40878, i costruttori 0x40886/0x408a0 e tutte le otto routine a tabelle 0x408be–0x40a30. Lo script verifica la visita dei dodici ingressi, 39 passaggi in 0x41578 e due in 0x41534. Non esegue il reset né dimostra come venga raggiunto 0x40704 sulla fotocamera.
+
+Due scenari riempiono `[0x68000000,0x68001000)`, `[0x7ffc,0x8404)` e lo stack di lavoro `[0x81003f00,0x81004100)` con 0x5a oppure 0xa5. SP iniziale è 0x81004000; i registri iniziali usati dal test sono azzerati. I 40 byte del contesto esterno a 0x8f991204 sono inizializzati a zero dal banco; il contesto a 0x68000ed0 ricade nella regione OS riempita col pattern e viene azzerato dal percorso originale. Il marker 0x6800cf20 parte da 0x11223344 e i byte periferici 0x44/0x46f partono dal pattern. Questi byte di periferica sono RAM sintetica.
+
+A differenza delle prove AB-102/103, il banco non azzera separatamente la bitmap e non reimposta PC/RP fra le routine. La sequenza originale 0x407f0 azzera `[0x68000000,0x68000ec0)`, `[0x8000,0x8400)` e `[0x68000ec0,0x68000f20)` prima delle costruzioni; le ulteriori coppie di limiti uguali nel disassemblato non richiedono accessi alle regioni vuote. La prova controlla il risultato finale dell'intera catena; l'attribuzione dell'azzeramento deriva anche dal listato originale già conservato in AB-100.
+
+Un'immagine attesa indipendente dallo stato finale dell'emulatore è costruita dalle tabelle originali e dalle regole dei campi verificate in AB-100–103: 33 sentinelle, tre sentinelle aggiuntive, 39 record, 38 blocchi ausiliari, due inserimenti, 49 oggetti con campo halfword, 22 con campo word e i due contesti preparati. Le intestazioni e i limiti delle destinazioni sono verificati prima dell'esecuzione. Dopo il punto di arresto si confrontano tutti i **3872 byte** di `[0x68000000,0x68000f20)` e i 40 byte di ciascun contesto. La bitmap finale inclusa nel confronto è 0x80000000; il contatore a 0x68000110/114 è zero.
+
+Si verificano inoltre i 1024 byte azzerati di `[0x8000,0x8400)`, le guardie di quattro byte ai due estremi, i 224 byte `[0x68000f20,0x68001000)` ancora uguali al pattern, SP ripristinato a 0x81004000, marker 0x6800cf20=1 e byte 0x44=1, 0x46f=0x10. Il confronto non copre tutta la memoria indirizzabile o tutte le scritture intermedie; i contesti preparati non vengono eseguiti.
+
+Log locale `work/os-startup-continuous.log`: **due scenari superati, 12125 passi ciascuno (24250 totali)**, senza WARN/ERROR/eccezioni. Ghidra 12.1.4, programma B `-readOnly -noanalysis`, linguaggio installato; non occorre l'adattatore INT o il linguaggio ILM sperimentale perché il test si ferma prima del percorso AB-97. I passi sono conteggi di istruzioni eseguite dall'emulatore, non cicli o tempi fisici.
+
+Il risultato collega in continuità il prefisso OS e sostituisce le transizioni imposte dei test AB-102/103 con le CALL originali. Non dimostra l'avvio completo o la compatibilità generale del modello CPU. Prossimo passo: collegare questo stato prodotto dal firmware alla chiamata a 0x40738 già studiata in AB-97, conservando espliciti il modello ILM e i confini INT/SSP necessari a quel seguito; poi valutare il vettore 0x18 sulla stessa memoria.
+
+
+## AB-105 · Collegamento continuo fra inizializzazione OS e periferica
+
+Componente B, campione AB-1, 9 novembre 2026. [D90OsPeripheralInitialization.java](../ghidra/D90OsPeripheralInitialization.java) estende AB-97 iniziando da 0x40704 e prosegue attraverso le CALL originali del prefisso AB-104 fino a **prima dell'istruzione a 0x40740**. Non ricostruisce le liste fra i due segmenti. Il modello ILM sperimentale a cinque bit, l'adattatore INT #0x40 e le sincronizzazioni esplicite SSP di AB-86/87 restano necessari; non si tratta di esecuzione interamente nativa del modello CPU.
+
+Otto scenari combinano seed periferico 0/0xff, pattern stack/OS 0x5a/0xa5 e ILM 0/31. Prima dell'esecuzione il banco riempie `[0x68000000,0x68001000)` e `[0x8000,0x8400)` col pattern, azzera 40 byte a 0x8f991204 e imposta 0x6800cf20=0x11223344. RAM periferica, stack e registri iniziali sono sintetici secondo AB-97. Le finestre originali aggiuntive sono `[0x40704,0x40738)`, `[0x407f0,0x40a56)`, `[0x41534,0x415a2)`, `[0x4186e,0x418a0)` e `[0x5c400,0x5cce4)`.
+
+A 0x40738 si verificano visita dei dodici inizializzatori di AB-104, marker 1, bitmap 0x80000000, tutte le 33 liste e le tre sentinelle aggiuntive, i due nodi inseriti 0x680001ec/0x680007c4 con campo +8 zero e contatore 0x68000110/114 zero. Si salvano quindi i **3872 byte** di `[0x68000000,0x68000f20)` e i 40 byte del contesto esterno. Questa prova verifica collegamenti e conservazione: non ricostruisce autonomamente tutti i campi attesi come AB-104.
+
+Segue il percorso AB-97: preparazione del blocco del servizio -83, INT adattato, dispatcher/servizio, RETI e coda d'inizializzazione fino a 0x40740. Restano attive le verifiche ereditate su blocco, registri e scritture periferiche. Il contatore prima del servizio è ora zero, prodotto dal prefisso OS, anziché il valore sentinella del test isolato. Alla fine l'intera regione salvata e il contesto esterno devono essere identici; il marker resta 1. SP=0x81004000, mentre SSP rimane separato a 0x81003fec dopo il normale recupero dello stack. Il confronto dei valori finali non esclude scritture intermedie né copre tutta la memoria.
+
+La classe base [D90SourceInitializationReturn.java](../ghidra/D90SourceInitializationReturn.java) aggiunge hook per ingresso, limite di passi e contatore iniziale; i valori predefiniti conservano il test AB-97. AB-105 imposta ingresso 0x40704 e limite 30000 per tratto. I precedenti test invariati non sono stati rieseguiti in questo passaggio.
+
+Log locale `work/os-peripheral-initialization.log`: **otto scenari superati, 102272 istanze di passo controllate** per accessi diretti SSP/USP, nessun WARN/ERROR/eccezione. Il conteggio comprende il prefisso OS (8 × 12125) e i 5272 passi del percorso AB-97; esclude INT adattato e RETI gestito separatamente. Non misura cicli hardware. Ambiente Ghidra 12.1.4, Java 21.0.13, programma B `-readOnly -noanalysis`, programma sperimentale transitorio, profilo ILM di AB-85 con manifesto `ghidra/language-profile-ilm5.sha256`. Il riepilogo ereditato AB-97 nel log è seguito da quello AB-105; il totale comprende entrambi i segmenti.
+
+Non sono eseguiti reset completo, scheduler o ingresso del vettore 0x18; periferiche e stato iniziale restano sintetici. Non è una nuova validazione indipendente del binario originale. Prossimo obiettivo: verificare il vettore 0x18 sulla memoria prodotta da questa catena, distinguendo ingresso forzato, effetti sulle liste e accettazione hardware ancora non modellata.
