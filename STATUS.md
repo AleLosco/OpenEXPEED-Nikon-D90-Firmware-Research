@@ -1,6 +1,6 @@
 # Stato del progetto
 
-Aggiornato il 9 novembre 2026. Questo file riassume il risultato attuale; il README presenta il progetto, mentre i documenti tecnici conservano evidenze, ipotesi e revisioni delle interpretazioni.
+Aggiornato il 10 novembre 2026. Questo file riassume il risultato attuale; il README presenta il progetto, mentre i documenti tecnici conservano evidenze, ipotesi e revisioni delle interpretazioni.
 
 Il progetto è un laboratorio di ricerca con analizzatore riproducibile e prove emulative di singole routine. Non contiene una patch funzionale validata sulla fotocamera né un emulatore completo della D90.
 
@@ -32,7 +32,7 @@ La revisione indipendente AB-78–AB-97 ha individuato due lacune di robustezza/
 
 ## Priorità attuale
 
-AB-105 collega il prefisso OS e l’inizializzazione periferica fino a 0x40740 in otto scenari. Il prossimo passo è verificare il vettore 0x18 sulla memoria così prodotta, senza ricostruire le liste. Scheduler, accettazione hardware e cadenza restano aperti. Modello consigliato: **Astra Medio**, per controllare la continuità dello stato e i confini CPU. Le priorità riportate nelle note storiche sottostanti descrivono il momento di ciascuna scoperta.
+AB-105 collega il prefisso OS e l’inizializzazione periferica fino a 0x40740 in otto scenari. AB-106 verifica ora un ingresso forzato del vettore 0x18 sulla stessa memoria: contatore incrementato e liste conservate. AB-107 segue la selezione del record 38 fino a prima di MOV R0,USP a 0x407ce. AB-108 conferma che entrambi i profili Ghidra cambiano S senza commutare SP su USP. AB-109 verifica ora un adattatore circoscritto ai quattro siti del ripristino. AB-110 integra quel tratto e verifica 18 registri e frame PC=0x407ee/PS=0x001f0030 prima di RETI. AB-111 conferma che RETI recupera PC/PS ma non seleziona USP in SP né aggiorna SSP. AB-112 verifica quell’adattatore in otto ritorni validi e undici rifiuti. AB-113 collega il ritorno al frame prodotto in AB-110: otto ingressi a 0x407ee e 128 passi del ciclo verificati. AB-114 collega la pista AB-27 allo stato emulato: vettore 0x3f e candidato distinto con PC=0x1000ac. AB-115 decodifica SRCH1 nella copia FR81 isolata, ma gli ingressi non nulli sono bloccati dalla userop clz non implementata. AB-116 verifica un adattatore esplicito della sola SRCH1 AC con 76 casi e quattro rifiuti. AB-117 esegue quel tratto con ingresso PC imposto e conferma il ramo per candidato distinto. Prossima priorità: ingresso esplicito da S=1 e prefisso del vettore 0x3f con frame completo prima di ricollegare la selezione. Scheduler, accettazione hardware e cadenza restano aperti. Modello consigliato: **Astra Medio**, per controllare la continuità dello stato e i confini CPU. Le priorità riportate nelle note storiche sottostanti descrivono il momento di ciascuna scoperta.
 
 ## Contesto e progressione della ricerca
 
@@ -164,3 +164,63 @@ Prossima priorità: collegare lo stato OS così prodotto al percorso AB-97 da 0x
 Collegati prefisso OS e inizializzazione periferica da 0x40704 a prima di 0x40740, senza reiniettare le liste: otto scenari e 102272 istanze di passo controllate, log senza avvisi/errori. Conservati i 3872 byte della regione OS e il contesto esterno attraverso il seguito AB-97; restano espliciti INT, SSP e RAM periferica. Evidenze, sorgenti e limiti in [AB-105](docs/communication-topology.md#ab-105--collegamento-continuo-fra-inizializzazione-os-e-periferica), riproduzione in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Stima complessiva rivista a circa 45% per l’integrazione locale AB-98–AB-105; dettagli nella tabella iniziale. Nessuna patch utile validata o fotocamera completamente emulata. Prossimo obiettivo: vettore 0x18 sullo stato prodotto dal firmware; identità periferica, temporizzazione e scheduler restano problemi aperti. Modello consigliato: **Astra Medio**. Nessun commit, push o modifica remota.
+
+
+### Aggiornamento tecnico AB-106 · 9 novembre 2026
+
+Otto scenari collegano AB-105 a un ingresso forzato del vettore 0x18 e al ritorno a 0x40740. Verificati contatore 0→1, conservazione della regione OS e del contesto esterno, registri e frame di ritorno; 102672 passi controllati, log senza avvisi/errori. [AB-106](docs/communication-topology.md#ab-106--vettore-0x18-sullo-stato-os-inizializzato) documenta evidenze e limiti. Liste d'attesa iniziali vuote, accettazione hardware e scheduler non modellati. Prossimo obiettivo: percorso da 0x40740 al primo contesto. Modello consigliato: Astra Medio. Stime invariate; risultato locale, non ancora pubblicato.
+
+
+### Aggiornamento tecnico AB-107 · 9 novembre 2026
+
+Verificata in otto scenari la selezione diretta del record 38: descrittore 0x5c838 → nodo 0x680007c4 → contesto 0x68000ed0. Marker 2 e puntatore corrente aggiornati; arresto prima di 0x407ce. Log finale senza avvisi/errori, 102744 passi; corretto un avviso diagnostico inizializzando USP nel banco. [AB-107](docs/communication-topology.md#ab-107--selezione-iniziale-e-confine-dello-stack-utente) distingue percorso eseguito e seguito statico. Prossima priorità: cambio S e modello SP/USP/SSP; ripristino del contesto e scheduler aperti. Astra Medio consigliato. Percentuali invariate; modifiche locali, non pubblicate.
+
+
+### Aggiornamento tecnico AB-108 · 10 novembre 2026
+
+Otto prove isolate delle cinque istruzioni da 0x407ce confermano che il modello installato e quello ILM corretto mantengono SP separato da USP/SSP anche al cambio S. I pop leggono dalla posizione SP precedente; log senza avvisi/errori. [AB-108](docs/communication-topology.md#ab-108--caratterizzazione-del-cambio-s-e-dei-registri-di-stack) registra input, confronti e limiti. Non è stato eseguito il primo contesto né modificato il modello CPU. Prossimo obiettivo: adattatore circoscritto del cambio stack e prove sulle precondizioni prima di riprendere AB-107. Modello consigliato: Astra Medio. Stime invariate; modifiche soltanto locali.
+
+
+### Aggiornamento tecnico AB-109 · 10 novembre 2026
+
+Adattatore del cambio S verificato in isolamento sui due profili: otto sequenze, otto prove dei siti e 48 rifiuti senza modifiche ai registri e alla memoria controllati. Log senza avvisi/errori. [AB-109](docs/communication-topology.md#ab-109--adattatore-circoscritto-del-cambio-di-stack) documenta convenzione, precondizioni e limiti. Non è un alias globale né un ritorno utente validato. Prossima priorità: integrare il ripristino AB-107 fino a prima di RETI e verificare il frame. Modello consigliato: Astra Medio. Percentuali invariate; lavoro solo locale.
+
+
+### Aggiornamento tecnico AB-110 · 10 novembre 2026
+
+Otto scenari collegano il contesto costruito al ripristino di 18 registri e al trasferimento del frame PC/PS sullo stack supervisore; stop prima di RETI a 0x407ea. Destinazione preparata 0x407ee, PS=0x001f0030. Regione OS, contesto esterno e guardie verificati; log senza avvisi/errori. [AB-110](docs/communication-topology.md#ab-110--ripristino-del-contesto-costruito-fino-a-prima-di-reti) distingue istruzioni originali e quattro cambi stack adattati. La destinazione è un salto su sé stesso nel listato: ruolo di attesa compatibile ma scheduler non dimostrato. Prossimo obiettivo: RETI verso S=1, ancora escluso dall'adattatore supervisore. Modello consigliato: Astra Medio. Percentuali invariate; modifiche solo locali.
+
+
+### Aggiornamento tecnico AB-111 · 10 novembre 2026
+
+Sedici prove isolate di RETI verso S=1 confermano lettura del frame su SP, ripristino PC/PS e flag secondo ciascun profilo, conservazione di 18 registri e della memoria sintetica. SP avanza di otto byte ma resta separato da USP; SSP non avanza. Log senza avvisi/errori. [AB-111](docs/communication-topology.md#ab-111--reti-verso-s1-nei-due-profili-cpu) documenta il limite del modello, non un difetto hardware. Prossimo obiettivo: adattatore del confine RETI utente e successiva integrazione in AB-110. Modello consigliato: Astra Medio. Stime invariate; risultati solo locali.
+
+
+### Aggiornamento tecnico AB-112 · 10 novembre 2026
+
+Adattatore RETI utente circoscritto a 0x407ea: otto ritorni sintetici e undici rifiuti verificati sul profilo ILM corretto, senza avvisi/errori. RETI recupera PC/PS; il banco aggiorna poi SSP e seleziona USP come SP. [AB-112](docs/communication-topology.md#ab-112--adattatore-del-confine-reti-utente) conserva precondizioni e limiti, incluso il mancato rollback dopo eventuali errori del passo. Prossimo obiettivo: integrazione con il frame AB-110 e arrivo alla destinazione 0x407ee. Modello consigliato: Astra Medio. Percentuali invariate; lavoro solo locale.
+
+
+### Aggiornamento tecnico AB-113 · 10 novembre 2026
+
+Raggiunto il contesto iniziale in modalità utente dal frame prodotto dal firmware: otto scenari, 128 passi del ciclo a 0x407ee, controlli su registri, stack e regioni di memoria senza avvisi/errori. [AB-113](docs/communication-topology.md#ab-113--ingresso-nel-contesto-utente-e-ciclo-iniziale) registra tutti gli adattamenti e l'interrupt forzato ereditato. È integrazione di un segmento d'avvio; reset completo, periferiche reali e passaggio ad altri task restano aperti. Prossimo obiettivo: percorso di selezione di un altro contesto dopo interrupt e ingresso da modalità utente. Modello consigliato: Astra Medio. Percentuali invariate; risultati solo locali, non pubblicati.
+
+
+### Aggiornamento tecnico AB-114 · 10 novembre 2026
+
+Confermata la corrispondenza della voce 0xdff00 con il vettore 0x3f e il gestore 0x40d44. Otto ispezioni dello stato prodotto da AB-113 verificano il candidato 0x680001ec, frame 0x8f991204 e ingresso 0x1000ac, distinto dal contesto di attesa; byte di controllo iniziali zero. [AB-114](docs/communication-topology.md#ab-114--candidato-pronto-e-percorso-del-vettore-0x3f) collega queste evidenze alla pista statica preesistente AB-27. Il gestore non è eseguito: SRCH1 a 0x40e32 e ingresso interrupt da S=1 restano da verificare. Prossimo obiettivo: caratterizzazione isolata di SRCH1. Modello consigliato: Astra Medio. Stime invariate; modifiche solo locali.
+
+
+### Aggiornamento tecnico AB-115 · 10 novembre 2026
+
+Compilata una copia isolata dei sorgenti FR81 verificati per hash. SRCH1 decodifica correttamente e due casi con input zero restituiscono 32 conservando lo stato controllato; il primo nonzero fallisce sulla userop clz non implementata. **Griglia inconcludente**, non 76 casi superati. [AB-115](docs/communication-topology.md#ab-115--srch1-decodificata-ma-bloccata-da-clz) conserva errori, avvisi del compilatore, manifesti e riproduzione. Prossimo obiettivo: soluzione circoscritta per clz/SRCH1 con verifica dei risultati e flag prima dell'integrazione. Modello consigliato: Astra Medio. Percentuali invariate; nessuna modifica remota.
+
+
+### Aggiornamento tecnico AB-116 · 10 novembre 2026
+
+Adattatore SRCH1 AC a 0x40e32 verificato in 76 casi contro un calcolo Java indipendente, più quattro rifiuti senza mutazioni; flag e registri controllati conservati, log senza avvisi/errori. [AB-116](docs/communication-topology.md#ab-116--adattatore-esplicito-srch1-ac) precisa che non è esecuzione nativa dell'istruzione né validazione hardware. Il blocco clz di AB-115 resta documentato. Prossimo obiettivo: prova delimitata del percorso bitmap→candidato→confronto con contesto corrente. Modello consigliato: Astra Medio. Stime invariate; modifiche solo locali.
+
+
+### Aggiornamento tecnico AB-117 · 10 novembre 2026
+
+Otto prove delimitate collegano bitmap originale, SRCH1 adattata e confronto: candidato 0x680001ec distinto dal corrente 0x680007c4, stop prima del salvataggio a 0x40e62. Verificati liste/frame candidato, SP/RP e memoria OS con l'unica parola di lavoro scritta dal push; log senza avvisi/errori, 103096 passi ordinari. [AB-117](docs/communication-topology.md#ab-117--selezione-delimitata-del-candidato-sullo-stato-inizializzato) dichiara PC imposto a 0x40e2a e prefisso/frame d'interrupt assenti. Prossimo obiettivo: ingresso da S=1 e prefisso del vettore 0x3f, prima del cambio completo. Modello consigliato: Astra Medio. Stime invariate; risultati solo locali.

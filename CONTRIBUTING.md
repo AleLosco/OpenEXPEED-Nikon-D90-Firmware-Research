@@ -112,3 +112,39 @@ Per AB-104 eseguire `D90OsStartupContinuous.java` sul programma B con `-readOnly
 
 
 Per AB-105 eseguire `D90OsPeripheralInitialization.java` sul programma B con `-readOnly -noanalysis`, passando il percorso assoluto di `fr60.ldefs` isolato di AB-85. Tenere `D90SourceInitializationReturn.java`, `D90SupervisorStack.java` e `D90Int40Adapter.java` nello scriptPath. Attesi otto scenari, 102272 istanze di passo controllate e riepilogo AB-105. Il prefisso OS e la chiamata periferica condividono memoria; INT e SSP restano adattamenti espliciti. Consultare il log oltre al codice di uscita. Non è un avvio completo né un test hardware.
+
+
+Per AB-106 eseguire `D90OsInitializedInterrupt.java` con le opzioni e il linguaggio isolato di AB-105, mantenendo nello scriptPath tutta la catena AB-105/97/87/86. Attesi otto scenari e 102672 istanze di passo controllate. Il vettore 0x18 è forzato sullo stato costruito dal firmware, senza ricostruire le liste; la prova termina al ritorno a 0x40740.
+
+
+Per AB-107 eseguire `D90StartupDispatchContext.java` sul programma B in sola lettura, poi `D90StartupDispatchBoundary.java` con opzioni, linguaggio isolato e dipendenze AB-106/105/97/87/86. Attesi otto scenari, 102744 passi e arresto prima di 0x407ce. USP è inizializzato sinteticamente prima dell'esecuzione; il cambio di stack utente non viene eseguito.
+
+
+Per AB-108 eseguire `D90UserStackModel.java` sul programma B con `-readOnly -noanalysis`, passando il percorso assoluto `fr60.ldefs` di AB-85 e mantenendo `D90SupervisorStack.java`/`D90Int40Adapter.java` nello scriptPath. Attesi otto casi sui due linguaggi (40 istruzioni totali). Il successo caratterizza la separazione SP/USP/SSP osservata nel modello; non certifica la fedeltà hardware.
+
+
+Per AB-109 eseguire `D90StackSwitchAdapter.java` sul programma B con le opzioni e dipendenze AB-108, passando il percorso assoluto del linguaggio ILM isolato. Attesi otto sequenze adattate, otto prove dei siti e 48 rifiuti di precondizione, sui due profili. Il test è isolato e non esegue RETI verso un contesto utente.
+
+
+Per AB-110 eseguire `D90StartupContextRestore.java` sul programma B con `-readOnly -noanalysis` e il percorso assoluto `fr60.ldefs` di AB-85. Richiede la catena AB-107/106/105/97/87/86 e `D90StackSwitchAdapter.java` nello scriptPath. Attesi otto scenari, frame PC=0x407ee/PS=0x001f0030 e arresto a 0x407ea prima di RETI. Il contatore di 102816 passi ordinari esclude MOV USP e i quattro cambi CCR adattati per scenario.
+
+
+Per AB-111 eseguire `D90UserRetiModel.java` sul programma B con `-readOnly -noanalysis`, argomento assoluto `fr60.ldefs` isolato e dipendenze AB-87/86 nello scriptPath. Attesi 16 casi sui due profili; ciascuno esegue soltanto RETI originale a 0x407ea con frame sintetico. La destinazione non viene eseguita.
+
+
+Per AB-112 eseguire `D90UserRetiAdapter.java` con `-readOnly -noanalysis`, percorso assoluto del linguaggio ILM isolato e dipendenze AB-87/86 nello scriptPath. Attesi otto ritorni validi e undici rifiuti senza mutazioni dei registri/memoria confrontati. Il test usa frame sintetici e non esegue la destinazione del ritorno.
+
+
+Per AB-113 eseguire `D90StartupUserLoop.java` sul programma B con `-readOnly -noanalysis`, percorso assoluto del linguaggio ILM AB-85 e tutta la catena di script AB-110, più `D90UserRetiAdapter.java`, nello scriptPath. Attesi otto ingressi nel contesto utente, 128 passi BRA e 102944 passi ordinari controllati. Non è un test di reset completo, temporizzazione hardware o passaggio a un altro task.
+
+
+Per AB-114 eseguire `D90DispatchSelectionContext.java` sul programma B con `-readOnly -noanalysis` senza argomenti; eseguire poi `D90DispatchReadyState.java` con linguaggio e dipendenze AB-113. Attese voce vettore 0x3f→0x40d44 e otto ispezioni dello stato. Il nuovo gestore e SRCH1 non vengono eseguiti; la prova conferma soltanto i dati disponibili al confine finale AB-113.
+
+
+Per AB-115 creare una directory isolata fuori dall'installazione Ghidra e copiare, dopo verifica dei digest contro `ghidra/language-profile.sha256`, `fr60.ldefs`, `fr60.sinc`, `fr60.pspec`, `fr60.cspec`, `fr60.dwarf`, `fr81.slaspec`, `fr81ext.sinc`. Compilare con `support/sleigh /percorso/isolato/fr81.slaspec`, usando JAVA_HOME e JAVA_TOOL_OPTIONS con `-Duser.home` nel workspace come per headless. Il manifesto `ghidra/language-profile-fr81-probe.sha256` identifica gli artefatti della prova. Eseguire `D90Srch1Probe.java` sul programma B `-readOnly -noanalysis`, passando il percorso assoluto del `fr60.ldefs` isolato e mantenendo `D90Int40Adapter.java` nello scriptPath. Nel presente ambiente sono attesi due casi zero superati e poi il riepilogo **INCONCLUSIVE** per userop `clz` non implementata: non interpretare exit code zero come successo della griglia. Il compilatore segnala sei costruttori NOP; vedere AB-115 per i limiti.
+
+
+Per AB-116 eseguire `D90Srch1Adapter.java` sul programma B con `-readOnly -noanalysis`, percorso assoluto `fr60.ldefs` del profilo ILM AB-85 e `D90Int40Adapter.java` nello scriptPath. Attesi 76 casi validi e quattro rifiuti. È una verifica Java dell'adattatore sullo stato emulativo, senza `c.step()` e senza esecuzione nativa di SRCH1. Non usare il `fr60.ldefs` della copia FR81 AB-115.
+
+
+Per AB-117 eseguire `D90DispatchCandidate.java` sul programma B con `-readOnly -noanalysis`, percorso assoluto del linguaggio ILM AB-85, dipendenze AB-114 e `D90Srch1Adapter.java` nello scriptPath. Attesi otto casi e 103096 passi ordinari controllati, con arresto a 0x40e62. PC=0x40e2a è imposto dal banco dopo AB-114: il prefisso d'interrupt è saltato e il suo frame non è presente. Non usare questo test come prova del cambio completo di contesto.
