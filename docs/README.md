@@ -10,7 +10,7 @@ The technical notes retain the original discovery identifiers. Use an ID such as
 | Update file selection, validation, flash programming, and display path | AB-6–AB-23 | [Update package and flash path](update-and-flash.md) |
 | B image import, reset, startup tables, and ENDM initialization | AB-24–AB-29 | [Boot analysis and Ghidra work](boot-and-ghidra.md) |
 | A/B communication paths and isolated routine experiments | AB-30–AB-42 | [Communication analysis](communication-analysis.md) |
-| External transport comparison and expanded callback/hardware evidence | AB-38–AB-117 | [Communication topology](communication-topology.md) |
+| External transport comparison and expanded callback/hardware evidence | AB-38–AB-147 | [Communication topology](communication-topology.md) |
 | External projects evaluated | — | [Related projects](related-projects.md) |
 
-The expanded communication-topology document adds detail to findings AB-38–AB-117; it does not replace their overview in the communication analysis. `STATUS.md` tracks current priorities and open questions. `CONTRIBUTING.md` describes how to reproduce or submit work.
+The expanded communication-topology document adds detail to findings AB-38–AB-147; it does not replace their overview in the communication analysis. `STATUS.md` tracks current priorities and open questions. `CONTRIBUTING.md` describes how to reproduce or submit work.

@@ -1,6 +1,6 @@
 # Stato del progetto
 
-Aggiornato il 10 novembre 2026. Questo file riassume il risultato attuale; il README presenta il progetto, mentre i documenti tecnici conservano evidenze, ipotesi e revisioni delle interpretazioni.
+Aggiornato l'11 novembre 2026. Questo file riassume il risultato attuale; il README presenta il progetto, mentre i documenti tecnici conservano evidenze, ipotesi e revisioni delle interpretazioni.
 
 Il progetto è un laboratorio di ricerca con analizzatore riproducibile e prove emulative di singole routine. Non contiene una patch funzionale validata sulla fotocamera né un emulatore completo della D90.
 
@@ -26,13 +26,13 @@ Le percentuali sono stime di copertura rispetto agli obiettivi di ciascuna area.
 | Emulazione della fotocamera | 20% | Segmenti OS/periferica collegati sulla stessa memoria; INT/SSP espliciti e RAM sintetica. Mancano reset completo, scheduler, periferiche e tempi realistici |
 | Patch sperimentali validate | 5% | Nessuna patch utile verificata sulla fotocamera; mancano candidato, confronto prima/dopo e procedura di recupero |
 
-Le stime sono indicative e possono cambiare quando si amplia o si restringe il perimetro. Le prove fino ad AB-105 comprendono analisi statica, routine isolate e segmenti collegati con confini sintetici espliciti. Il rialzo delle stime al 9 novembre riflette l’integrazione AB-98–AB-105, non nuova copertura hardware; non è una media aritmetica delle aree. Le prove sui registri della periferica usano RAM sintetica e non identificano ancora la sorgente fisica dell’interrupt. La revisione indipendente del 4 novembre non ha rilevato problemi confermati nel perimetro AB-62–AB-69; non ha rieseguito Ghidra.
+Le stime sono indicative e possono cambiare quando si amplia o si restringe il perimetro. Le prove fino ad AB-147 comprendono analisi statica, routine isolate e segmenti collegati con confini sintetici espliciti. La revisione dell'11 novembre amplia il percorso delimitato dal contesto utente fino alla selezione del servizio OS -23; non dimostra un avvio completo o copertura hardware. La stima complessiva non è una media aritmetica delle aree. Le prove sui registri della periferica usano RAM sintetica e non identificano ancora la sorgente fisica dell’interrupt. Le revisioni indipendenti del 4 e 11 novembre hanno segnalato rilievi di bassa severità poi corretti; i loro limiti sono registrati nelle sezioni tecniche.
 
 La revisione indipendente AB-78–AB-97 ha individuato due lacune di robustezza/riproducibilità, corrette e verificate localmente: PC dispari nell’adattatore INT e verifica incompleta degli input del linguaggio sperimentale. Test e riesecuzioni mirate sono documentati nella [rettifica AB-85/AB-86](docs/communication-topology.md#rettifica-di-riproducibilità-ab-85ab-86--6-novembre-2026). Quelle correzioni non avevano modificato le stime: riguardavano il banco di prova, non nuova copertura hardware.
 
 ## Priorità attuale
 
-AB-105 collega il prefisso OS e l’inizializzazione periferica fino a 0x40740 in otto scenari. AB-106 verifica ora un ingresso forzato del vettore 0x18 sulla stessa memoria: contatore incrementato e liste conservate. AB-107 segue la selezione del record 38 fino a prima di MOV R0,USP a 0x407ce. AB-108 conferma che entrambi i profili Ghidra cambiano S senza commutare SP su USP. AB-109 verifica ora un adattatore circoscritto ai quattro siti del ripristino. AB-110 integra quel tratto e verifica 18 registri e frame PC=0x407ee/PS=0x001f0030 prima di RETI. AB-111 conferma che RETI recupera PC/PS ma non seleziona USP in SP né aggiorna SSP. AB-112 verifica quell’adattatore in otto ritorni validi e undici rifiuti. AB-113 collega il ritorno al frame prodotto in AB-110: otto ingressi a 0x407ee e 128 passi del ciclo verificati. AB-114 collega la pista AB-27 allo stato emulato: vettore 0x3f e candidato distinto con PC=0x1000ac. AB-115 decodifica SRCH1 nella copia FR81 isolata, ma gli ingressi non nulli sono bloccati dalla userop clz non implementata. AB-116 verifica un adattatore esplicito della sola SRCH1 AC con 76 casi e quattro rifiuti. AB-117 esegue quel tratto con ingresso PC imposto e conferma il ramo per candidato distinto. Prossima priorità: ingresso esplicito da S=1 e prefisso del vettore 0x3f con frame completo prima di ricollegare la selezione. Scheduler, accettazione hardware e cadenza restano aperti. Modello consigliato: **Astra Medio**, per controllare la continuità dello stato e i confini CPU. Le priorità riportate nelle note storiche sottostanti descrivono il momento di ciascuna scoperta.
+AB-118–AB-147 collegano il prefisso del vettore 0x3f, il salvataggio e ripristino del contesto e la selezione di un candidato fino alla quinta chiamata d'inizializzazione. Con un ingresso INT utente e frame supervisore preparati esplicitamente dal banco, il dispatcher originale raggiunge il servizio OS -23 a 0x414da. La prossima priorità è analizzare staticamente quel servizio: mappare argomenti e accessi in memoria per R4=28 e R5=0, poi progettare una prova delimitata senza confondere memoria sintetica ed effetti hardware. Restano aperti accettazione fisica degli interrupt, temporizzazione, scheduler e avvio completo. Modello consigliato: **Astra Medio**, per seguire le precondizioni attraverso il dispatcher e delimitare gli effetti della routine.
 
 ## Contesto e progressione della ricerca
 
@@ -58,7 +58,7 @@ Criteri di mantenimento della pubblicazione:
 
 Una riproduzione su una seconda macchina resta utile come verifica indipendente. Non è stata eseguita e non va confusa con una nuova importazione sullo stesso host. Le prove numerose non misurano la percentuale di firmware compresa: molti casi variano gli ingressi dello stesso blocco di poche istruzioni.
 
-Descrizione impostata nel campo About di GitHub: “Independent Nikon D90 firmware research. Progress ~40%: package analysis 85%, update and flash 60%, communications 50%, emulation 15%, validated patches 5%. No firmware included.” Argomenti: nikon, firmware, reverse-engineering, ghidra, camera.
+Descrizione da impostare nel campo About di GitHub: “Independent Nikon D90 firmware research. Progress ~45%: package analysis 85%, update/flash 65%, communications 55%, emulation 20%, validated patches 5%. No firmware included.” Argomenti: nikon, firmware, reverse-engineering, ghidra, camera.
 
 ## Verifica di preparazione del 3 novembre 2026
 
@@ -224,3 +224,123 @@ Adattatore SRCH1 AC a 0x40e32 verificato in 76 casi contro un calcolo Java indip
 ### Aggiornamento tecnico AB-117 · 10 novembre 2026
 
 Otto prove delimitate collegano bitmap originale, SRCH1 adattata e confronto: candidato 0x680001ec distinto dal corrente 0x680007c4, stop prima del salvataggio a 0x40e62. Verificati liste/frame candidato, SP/RP e memoria OS con l'unica parola di lavoro scritta dal push; log senza avvisi/errori, 103096 passi ordinari. [AB-117](docs/communication-topology.md#ab-117--selezione-delimitata-del-candidato-sullo-stato-inizializzato) dichiara PC imposto a 0x40e2a e prefisso/frame d'interrupt assenti. Prossimo obiettivo: ingresso da S=1 e prefisso del vettore 0x3f, prima del cambio completo. Modello consigliato: Astra Medio. Stime invariate; risultati solo locali.
+
+### Aggiornamento tecnico AB-118 · 11 novembre 2026
+
+Otto scenari raggiungono la lettura della bitmap passando dal prefisso originale del gestore, con frame sintetico e commutazione esplicita dello stack. [Prova e limiti AB-118](docs/communication-topology.md#ab-118--prefisso-del-vettore-0x3f-dal-ciclo-utente). Prossima priorità: collegare questo stato alla selezione AB-117 e verificare il salvataggio del contesto corrente. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-119 · 11 novembre 2026
+
+Otto prove continue dal prefisso AB-118 verificano il frame uscente di 80 byte e il puntatore scritto nel controllo corrente. [Evidenze AB-119](docs/communication-topology.md#ab-119--salvataggio-del-contesto-uscente). Prossimo obiettivo: seguire il caricamento dello stack del candidato da 0x40e7a. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-120 · 11 novembre 2026
+
+Otto scenari continui verificano il caricamento dello stack candidato e delle prime due parole in R0/R1. [Evidenze AB-120](docs/communication-topology.md#ab-120--caricamento-dello-stack-candidato). Prossimo obiettivo: seguire la chiamata tramite 0x404f6 e la preparazione del frame supervisore. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-121 · 11 novembre 2026
+
+Otto prove verificano il passaggio di PC e PS del candidato attraverso la chiamata a 0x404f6 fino al frame supervisore. [Evidenze AB-121](docs/communication-topology.md#ab-121--preparazione-del-frame-supervisore-del-candidato). Prossimo obiettivo: seguire il ripristino dei registri da 0x40ea6 e verificare l'aggiornamento del puntatore al controllo corrente. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-122 · 11 novembre 2026
+
+Otto prove verificano il caricamento di 15 registri e il passaggio del campo corrente al candidato. Sette parole dello stack sono input sintetici aggiunti per verificare l'ordine dei caricamenti. [Evidenze AB-122](docs/communication-topology.md#ab-122--ripristino-dei-registri-e-aggiornamento-del-controllo-corrente). Prossima priorità: seguire il ramo di epilogo da 0x40eb4 e identificare gli input richiesti per il rientro. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-123 · 11 novembre 2026
+
+La RETI del gestore raggiunge il PC candidato 0x1000ac in otto scenari sul ramo zero. [Evidenze e precondizioni AB-123](docs/communication-topology.md#ab-123--ritorno-al-pc-del-candidato). Prossima priorità: verificare la mappatura dell'indirizzo di destinazione e identificare i byte originali prima di tentare la prima istruzione. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-124 · 11 novembre 2026
+
+Il descrittore 0x5c480 collega il candidato a 0x1000ac, dove il database contiene un prologo decodificabile e chiamate successive. [Evidenze AB-124](docs/communication-topology.md#ab-124--descrittore-e-destinazione-del-candidato). Prossimo obiettivo: verificare i byte rispetto al campione originale e alla mappatura di caricamento. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-125 · 11 novembre 2026
+
+Verificati il digest dell'originale e l'identità integrale delle due regioni programmate B nel database. Il PC candidato 0x1000ac corrisponde all'offset file 0x1400ae. [Evidenze AB-125](docs/communication-topology.md#ab-125--confronto-diretto-con-il-campione-originale). Prossimo obiettivo: eseguire il prologo candidato fino al confine prima della CALL a 0x1000d0, preservando le precondizioni esplicite. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-126 · 11 novembre 2026
+
+Otto scenari eseguono le prime otto istruzioni del candidato dal ritorno AB-123. Verificati stack, registri salvati e destinazione della prima chiamata. [Evidenze AB-126](docs/communication-topology.md#ab-126--prime-istruzioni-del-candidato). Prossima priorità: confrontare gli accessi della routine 0x19a542 con la mappa disponibile prima di estendere la prova. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-127 · 11 novembre 2026
+
+Il confronto della mappa al punto di chiamata identifica codice e valori interni disponibili in B e quattro regioni dati da rappresentare nel banco. [Evidenze AB-127](docs/communication-topology.md#ab-127--mappa-richiesta-dalla-prima-chiamata-endm). Prossima prova: eseguire i tre percorsi di scelta con firme controllate e verificare l'intero blocco risultante, compresi i 32 byte finali e il puntatore pubblicato. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-128 · 11 novembre 2026
+
+Ventiquattro prove verificano le tre scelte ENDM, il risultato completo di 31520 byte, la sostituzione dei 32 byte finali e il puntatore pubblicato. [Evidenze AB-128](docs/communication-topology.md#ab-128--tre-scelte-endm-verificate-in-emulazione). Prossima priorità: identificare gli accessi della seconda chiamata, a 0x18522c, e la relazione con lo stato prodotto da ENDM. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-129 · 11 novembre 2026
+
+La seconda routine confronta la firma SYSTEMFIXADJUST e seleziona tra sorgente 0x880000 e dati interni 0x1d610c per copiare 244 byte a 0x8f933214. [Evidenze statiche AB-129](docs/communication-topology.md#ab-129--seconda-chiamata-e-blocco-systemfixadjust). Prossima priorità: verificare entrambi i percorsi dopo AB-128, controllando il blocco ENDM già prodotto e lo stack. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-130 · 11 novembre 2026
+
+Sedici prove verificano entrambi i percorsi SYSTEMFIXADJUST, i 244 byte copiati, le guardie e la conservazione del blocco ENDM precedente. [Evidenze AB-130](docs/communication-topology.md#ab-130--due-percorsi-systemfixadjust-in-emulazione). Prossima priorità: ricostruire gli accessi della terza chiamata a 0x13a1dc e gli input richiesti dal banco. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-131 · 11 novembre 2026
+
+La terza chiamata gestisce due tabelle di 26 puntatori e copie guidate da descrittori, con helper e correzioni successive. [Struttura statica AB-131](docs/communication-topology.md#ab-131--struttura-della-terza-chiamata). Prossima priorità: ricostruire l'helper 0x13a3ac e le 26 voci a 0x1caabc per determinare sorgenti, destinazioni e limiti delle copie. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-132 · 11 novembre 2026
+
+Ricostruita staticamente la preparazione delle due tabelle e confrontati tutti i 26 descrittori con il campione originale. [Evidenze AB-132](docs/communication-topology.md#ab-132--lettura-delle-due-sorgenti-e-descrittori). Prossima priorità: eseguire l'helper con record sintetici validi, lunghezza discordante, marcatore 0xaa55 e terminatore 0xffff e verificare i puntatori prodotti per entrambi i selettori. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-133
+
+Trentadue prove verificano la raccolta dei puntatori, il rifiuto della lunghezza discordante, l'allineamento del record dispari e la pubblicazione tramite marcatore per entrambi i selettori. [Evidenze AB-133](docs/communication-topology.md#ab-133--parser-dei-record-su-sorgenti-controllate). Prossima priorità: collegare le due invocazioni originali nel chiamante e verificare la scelta delle sorgenti e le copie fino a 0x13a278. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-134
+
+Otto scenari collegano la terza CALL, entrambi i parser e il ciclo su 26 voci. Verificate priorità modulo 65536, sorgente alternativa e segnalazione delle voci mancanti. [Evidenze AB-134](docs/communication-topology.md#ab-134--scelta-della-sorgente-e-copia-dei-record). Prossimo obiettivo: seguire i primi rami da 0x13a278 variando la presenza dei tipi 1 e 2. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-135
+
+Trentadue prove verificano le quattro combinazioni dei flag 1/2, due modifiche nel blocco tipo 1 e il primo ingresso nell'helper 0x13a802. [Evidenze AB-135](docs/communication-topology.md#ab-135--rami-controllati-dai-flag-1-e-2). Prossima priorità: analizzare l'helper 0x13a802 e verificare il ciclo di quattro invocazioni con flag 2 impostato. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-136
+
+Sedici prove confermano il ramo controllato dal flag 2 e le 32 copie originali di 19 byte, con confronto dell'intero blocco tipo 2. [Evidenze AB-136](docs/communication-topology.md#ab-136--quattro-copie-dei-valori-interni-per-il-tipo-2). Prossima priorità: seguire le operazioni da 0x13a2b6 e ricostruire il ramo controllato dal flag 3 e l'helper 0x13a814. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-137
+
+Sedici prove verificano le maschere intermedie e le quattro copie di 35 byte controllate dal flag 3. [Evidenze AB-137](docs/communication-topology.md#ab-137--valori-interni-per-il-tipo-3-e-maschere-intermedie). Prossima priorità: verificare i rami dei flag 9, 10 e 11 a partire da 0x13a2f4. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-138
+
+Sessantaquattro prove verificano gli azzeramenti controllati dai flag 9/10/11, con guardie, flag e stack confrontati. [Evidenze AB-138](docs/communication-topology.md#ab-138--azzeramenti-controllati-dai-flag-9-10-e-11). Prossima priorità: ricostruire il ciclo da 0x13a336 per i flag 12 e successivi e verificarne gli intervalli di scrittura. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-139
+
+Centoquattro prove verificano il ciclo sui flag 12–20, gli azzeramenti di 64 byte in record distanziati di 578 byte e il confine finale del ciclo. [Evidenze AB-139](docs/communication-topology.md#ab-139--nove-azzeramenti-indicizzati-dai-flag-1220). Prossima priorità: identificare gli accessi della chiamata 0x1ad966 controllata dal flag 23 e la copia da 0x8f6e3f2c. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-140
+
+Sedici prove verificano l'helper controllato dal flag 23 e la successiva copia di 624 byte, con confronto di sorgente, destinazione, guardie, tipo 1 e stack. [Evidenze AB-140](docs/communication-topology.md#ab-140--inizializzazione-del-tipo-23-e-copia-successiva). Prossima priorità: analizzare 0x1ae4c0, controllata dal flag 24, prima di chiudere la terza chiamata. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-141
+
+Sedici prove verificano l'azzeramento controllato dal flag 24, la scrittura finale e il ritorno originale al candidato a 0x1000e2, con ripristino dei registri salvati. [Evidenze AB-141](docs/communication-topology.md#ab-141--flag-24-e-ritorno-della-terza-chiamata). Prossima priorità: eseguire la terza chiamata dall'ingresso al ritorno su record sintetici coerenti, evitando la reimpostazione intermedia dei flag. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-142
+
+Otto esecuzioni continue della terza chiamata dal candidato verificano il ritorno a 0x1000e2 e tutti i 26 blocchi, i flag e la copia del tipo 23, con due configurazioni complementari di record sintetici. [Evidenze AB-142](docs/communication-topology.md#ab-142--terza-chiamata-continua). Prossima priorità: identificare destinazione e dipendenze della quarta chiamata e verificare quali dati prodotti fin qui vengono letti. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-143
+
+Identificata la quarta chiamata 0x13b7f6 e il parser di cinque coppie puntatore/lunghezza. [Evidenze statiche AB-143](docs/communication-topology.md#ab-143--quarta-chiamata-e-parser-a-cinque-voci). Prossima priorità: verificare le basi ROM e predisporre record sintetici per i limiti del parser e la scelta delle copie. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-144
+
+Otto esecuzioni della quarta chiamata verificano priorità, copie alternative, lunghezze zero e massima, due casi di arresto del parser e ritorno a 0x1000ea. [Evidenze AB-144](docs/communication-topology.md#ab-144--quarta-chiamata-continua-e-limiti-dei-record). Prossima priorità: identificare la quinta chiamata e verificare eventuali letture dei blocchi già preparati. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-145
+
+La quinta chiamata 0x112008 prepara due teste di lista e collega due elementi, poi raggiunge INT 0x40 con servizio -23. [Evidenze statiche AB-145](docs/communication-topology.md#ab-145--quinta-chiamata-e-nuovo-confine-int). Prossima priorità: eseguire il prefisso delle liste fino a 0x112014, verificando i collegamenti e lo stato utente al confine INT. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-146
+
+Otto prove verificano entrambe le teste, i due elementi collegati e lo stato al confine INT della quinta chiamata. [Evidenze AB-146](docs/communication-topology.md#ab-146--liste-della-quinta-chiamata-e-confine-utente). Prossima priorità: caratterizzare l'ingresso INT 0x40 da S=1 e la selezione del servizio -23, con frame supervisore esplicito. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-147
+
+Otto prove raggiungono 0x414da per il servizio -23 dal confine AB-146 con ingresso INT utente sintetico e dispatcher originale. [Evidenze AB-147](docs/communication-topology.md#ab-147--ingresso-utente-modellato-e-selezione-del-servizio--23). Prossima priorità: identificare gli accessi del servizio e gli esiti per R4=28, R5=0 prima di proseguirne l'esecuzione. Stima complessiva circa 45%.

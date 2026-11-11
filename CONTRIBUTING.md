@@ -148,3 +148,63 @@ Per AB-116 eseguire `D90Srch1Adapter.java` sul programma B con `-readOnly -noana
 
 
 Per AB-117 eseguire `D90DispatchCandidate.java` sul programma B con `-readOnly -noanalysis`, percorso assoluto del linguaggio ILM AB-85, dipendenze AB-114 e `D90Srch1Adapter.java` nello scriptPath. Attesi otto casi e 103096 passi ordinari controllati, con arresto a 0x40e62. PC=0x40e2a è imposto dal banco dopo AB-114: il prefisso d'interrupt è saltato e il suo frame non è presente. Non usare questo test come prova del cambio completo di contesto.
+
+Per AB-118 eseguire `D90DispatchPrefix.java` con gli stessi argomenti e lo stesso programma B in sola lettura di AB-117. Il riepilogo atteso è “eight synthetic vector prefixes reached bitmap entry with checked stacks”.
+
+Per AB-119 eseguire `D90DispatchSave.java` con programma B in sola lettura e argomenti di AB-118, includendo `D90Srch1Adapter.java` nello scriptPath. Cercare nel log “eight outgoing context saves passed at 0x40e7a”.
+
+Per AB-120 eseguire `D90DispatchLoad.java` con programma B, opzioni e profilo ILM di AB-119. Verificare nel log “eight candidate stack loads passed at 0x40e90”.
+
+Per AB-121 eseguire `D90DispatchFrame.java` con programma B, opzioni e profilo ILM di AB-120. Verificare nel log “eight supervisor frames passed at 0x40ea6”.
+
+Per AB-122 eseguire `D90DispatchRegisters.java` con programma B, opzioni e profilo ILM di AB-121. Il banco aggiunge sette parole sintetiche allo stack candidato. Verificare nel log “eight register restores and current-control stores passed at 0x40eb4”.
+
+Per AB-123 eseguire `D90DispatchReturn.java` con programma B, opzioni e profilo ILM di AB-122. Controllare il riepilogo “eight dispatcher returns reached 0x1000ac before candidate execution”. Le tre parole aggiunte a 0x8f991248 sono input sintetici.
+
+Per AB-124 eseguire `D90CandidateEntry.java` sul programma B con `-readOnly -noanalysis`, senza argomenti. Il log elenca descrittore, blocco, 32 byte e 12 istruzioni. La verifica è statica sul database.
+
+Per AB-125 eseguire `D90CandidateSource.java /percorso/D90_0101.bin` sul programma B con `-readOnly -noanalysis`. Lo script verifica il digest prima del confronto integrale dei due intervalli programmati B. Atteso “sample digest and both complete programmed B spans verified”. Il file originale viene letto tramite Files.readAllBytes.
+
+Per AB-126 eseguire `D90CandidatePrologue.java` con programma B e opzioni di AB-123, passando il percorso assoluto del profilo ILM AB-85. Verificare il riepilogo “eight candidate prologues reached the first CALL at 0x1000d0”.
+
+Per AB-127 eseguire `D90CandidateEndmMap.java` con programma B e argomenti di AB-126. Controllare gli intervalli nel log e il riepilogo “eight pre-call map inspections passed”.
+
+Per AB-128 eseguire `D90CandidateEndm.java` con programma B, opzioni e profilo ILM di AB-126. Il banco aggiunge codice/dati ENDM e sorgenti sintetiche. Atteso “24 ENDM copies and published pointers passed across three source choices”. Il limite locale è 200000 passi per tratto delimitato.
+
+Per AB-129 eseguire `D90SecondCallContext.java` sul programma B con `-readOnly -noanalysis`, senza argomenti. Il listato deve fermarsi alla RET a 0x185278, con riepilogo “bounded static listing reached return”.
+
+Per AB-130 eseguire `D90CandidateSystemFix.java` con programma B e argomenti di AB-128. Atteso “16 SYSTEMFIXADJUST copies and ENDM preservation checks passed”. Sono ereditate anche le 24 copie ENDM di AB-128.
+
+Per AB-131 eseguire `D90ThirdCallContext.java` sul programma B con `-readOnly -noanalysis`, senza argomenti. Il listato, limitato a 320 istruzioni, deve raggiungere la RET a 0x13a3aa e il riepilogo “bounded static listing reached return”.
+
+Per AB-132 eseguire `D90ThirdCallHelper.java` sul programma B con `-readOnly -noanalysis`. Confrontare le 26 righe con i record big-endian IHH del campione AB-1 a offset 0x20aabe. Il listato termina con RET:D a 0x13a466 e il ripristino di R10 nel delay slot.
+
+Per AB-133 eseguire `D90ThirdCallRecords.java` con programma B e argomenti di AB-130. Atteso “32 parser cases passed for both selectors with and without publication”. Le invocazioni dell'helper e i record delle due sorgenti sono sintetici.
+
+Per AB-134 eseguire `D90ThirdCallCopies.java` con programma B e argomenti di AB-130. Atteso “eight original double-parser and copy loops passed at 0x13a278”.
+
+Per AB-135 eseguire `D90ThirdCallFlags.java` con programma B e argomenti di AB-134. Atteso “32 flag-controlled branches passed before helper execution”. La prova impone i due flag dopo le copie e si arresta prima dell'esecuzione dell'helper.
+
+Per AB-136 eseguire `D90Type2HelperContext.java` senza argomenti per il listato, poi `D90Type2Defaults.java` con programma B e argomenti di AB-134. Atteso “16 type-2 branch cases and 32 helper calls passed”.
+
+Per AB-137 eseguire `D90Type3HelperContext.java` senza argomenti, poi `D90Type3Defaults.java` con programma B e argomenti di AB-136. Atteso “16 type-3 cases and 32 helper calls passed”.
+
+Per AB-138 eseguire `D90MissingBlockClear.java` con programma B e argomenti di AB-137. Atteso “64 flag-9/10/11 combinations passed at 0x13a336”. I flag e i dati azzerati sono predisposti dal banco.
+
+Per AB-139 eseguire `D90MissingArrayClear.java` con programma B e argomenti di AB-138. Atteso “104 nine-record clear cases passed at 0x13a364”. Le tredici maschere sono elencate nello script.
+
+Per AB-140 eseguire `D90Type23Context.java` senza argomenti e `D90Type23Copy.java` con programma B e argomenti di AB-139. Atteso “16 flag-23 initializations and full 624-byte copies passed”.
+
+Per AB-141 eseguire `D90Type24Context.java` senza argomenti e `D90Type24Return.java` con programma B e argomenti di AB-140. Atteso “16 flag-24 branches and third-call returns passed at 0x1000e2”. Il banco ripristina SP e R9 prima di ogni variante.
+
+Per AB-142 eseguire `D90ThirdCallIntegrated.java` sul programma B con opzioni e profilo ILM di AB-130. Verificare il riepilogo “eight continuous third calls passed with 26 checked blocks and mirror” e l'assenza di avvisi di memoria non inizializzata.
+
+Per AB-143 eseguire `D90FourthCallContext.java` e `D90FourthParserContext.java` sul programma B con `-readOnly -noanalysis`, senza argomenti. I listati raggiungono rispettivamente RET a 0x13b892 e RET:D a 0x13b93e.
+
+Per AB-144 eseguire `D90FourthCallIntegrated.java` con programma B e argomenti di AB-142. Atteso “eight complete fourth calls passed at 0x1000ea”.
+
+Per AB-145 eseguire `D90FifthCallContext.java`, `D90FifthInitContext.java` e `D90FifthListContext.java` sul programma B con `-readOnly -noanalysis`, senza argomenti. I listati sono statici e non eseguono INT.
+
+Per AB-146 eseguire `D90FifthLists.java` con programma B e argomenti di AB-144. Atteso “eight fifth-call list preparations passed before INT 0x40”. Lo stop è prima dell'INT a 0x112014.
+
+Per AB-147 eseguire `D90FifthServiceEntry.java` con programma B e argomenti di AB-146. Atteso “eight modeled user INT entries dispatched to 0x414da”. Il frame INT è predisposto esplicitamente sullo stack supervisore.
