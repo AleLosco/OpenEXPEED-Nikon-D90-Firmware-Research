@@ -42,7 +42,7 @@ Run the synthetic parser and digest-gate tests with `python3 -m unittest discove
 - [Update package and flash path](docs/update-and-flash.md): update selection, validation, flash operations, and associated display paths (AB-6–AB-23).
 - [Boot analysis and Ghidra work](docs/boot-and-ghidra.md): B-image import and startup analysis (AB-24–AB-29).
 - [Communication analysis](docs/communication-analysis.md): A/B transport paths and isolated experiments (AB-30–AB-42).
-- [Communication topology and callback details](docs/communication-topology.md): external comparison and expanded evidence for AB-38–AB-105.
+- [Communication topology and callback details](docs/communication-topology.md): external comparison and expanded evidence for AB-38–AB-147.
 - [Related projects](docs/related-projects.md): external projects reviewed for relevance.
 
 For the current research status, see [STATUS.md](STATUS.md). To reproduce Ghidra work or submit a finding, see [CONTRIBUTING.md](CONTRIBUTING.md).
