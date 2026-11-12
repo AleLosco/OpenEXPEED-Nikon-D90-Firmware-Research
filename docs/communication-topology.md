@@ -1673,3 +1673,118 @@ Componente B del campione AB-1. [D90FifthServiceEntry.java](../ghidra/D90FifthSe
 Il prefisso originale arriva a 0x406b6 con SP=FP=0x81003fb0. Le parole salvate a +16 e +20 valgono 28 e 0. Il selettore salvato a +48 vale 0x7fffffe9 e ILM attivo vale 30. La tabella originale contiene 0x0e68 a 0x40644. Le istruzioni del dispatcher portano il PC a 0x414da con RP=0x406c6. La prova verifica il frame PC/PS sullo stack supervisore, USP e tutti gli 80 byte ispezionati dello stack utente fino a questo confine.
 
 Otto casi superati in Ghidra 12.1.4 con programma B in sola lettura. Log locale work/fifth-service-entry.log. L'esecuzione si ferma prima della prima istruzione a 0x414da. Gli effetti del servizio e la corrispondenza hardware dell'ingresso INT da S=1 restano aperti.
+
+## AB-148 · Mappa statica del servizio OS -23
+
+Componente B del campione AB-1. [D90Service23Context.java](../ghidra/D90Service23Context.java) esamina il database Ghidra esistente in sola lettura con `-noanalysis`, usando pseudo-disassemblaggio limitato perché nell'elenco analizzato non c'è una funzione che contenga 0x414da. Questa osservazione descrive la mappa delle funzioni del database, non l'assenza di codice nel firmware. Log locale work/service23-context.log; Ghidra 12.1.4, Java Temurin 21.0.13. I blocchi esaminati terminano ai ritorni previsti e non producono WARN/ERROR nel log.
+
+Il servizio salva RP, passa 0x5c40c e R4 a 0x41852 per selezionare un descrittore, poi legge i campi +0x10 e +0x14 come R6 e R7 e il primo campo del descrittore come puntatore di controllo D. Per R4=28 la tabella ha intestazione count=38 e stride=28; il record selezionato è a 0x5c704: +0x00=0x680005e0, +0x04=0x001c000d, +0x08=0, +0x0c=0x40000000, +0x10=0x0011201a, +0x14=0x8f9b0204, +0x18=0. L'helper decrementa l'indice e calcola la base del record con la stride dichiarata.
+
+Con i valori d'ingresso già verificati in AB-147 (R4=28, R5=0), il percorso principale confronta D con la parola a 0x68000000. Se coincidono, verifica bit e byte a 0x68000131 e nell'area adiacente, con un ramo che scrive R5 e il byte 1 a 0x44; il significato di questi registri/periferiche e le condizioni pratiche restano da identificare. Il flusso poi verifica il bit 0x10 a D+8. Se manca, torna R12=0xc1. Se è presente, chiama 0x41534.
+
+La routine 0x41534 azzera D+8, chiama l'helper 0x4186e con il puntatore di contesto R7 nel delay slot, quindi scrive sul contesto: RP iniziale 0x4050a a +8, R5 a +0x24, R6 a +0, e PS 0x001f0030 a +4. Scrive inoltre R7 in D+0x18 e il valore zero iniziale in D+8 prima della chiamata. L'helper 0x4186e è già stato descritto in AB-90 come inserimento in lista scelto dal campo +0x0c e aggiornamento di una bitmap. Per il record 28 il campo alto/basso a +4 è 28/13; il costruttore documentato in AB-101 copia il valore basso nella struttura di controllo, compatibile con selettore lista 13. La lettura combinata suggerisce un percorso di preparazione/attivazione del contesto, ma il nome semantico del servizio e il fatto che il task venga effettivamente eseguito non sono provati.
+
+AB-148 è un risultato statico sul database, non una riesecuzione emulata del servizio. La relazione tra tabella e codice è coerente con il confine emulato AB-147, ma in questo passaggio non è stato eseguito un nuovo confronto dei byte firmware con l'HEX né è stata eseguita la routine su RAM sintetica. Restano aperti i rami per altri argomenti, gli effetti fisici degli indirizzi 0x44 e 0x68000000/131, il comportamento dello scheduler e l'accettazione hardware dell'interrupt. Prossimo passo: preparare una prova emulata delimitata per R4=28/R5=0 con D e le aree di controllo sintetiche, confrontando contesto, lista e bitmap prima/dopo e controllando anche l'esito del ramo non eleggibile senza attribuire semantica hardware.
+
+## AB-149 · Ritorno del servizio OS -23
+
+Sul componente B di AB-1 il banco riparte a 0x414da dagli otto stati AB-147 con R4=28 e R5=0. In tutti verifica che D=0x680005e0 sia diverso dal controllo corrente, che D+8 valga 16 e che la lista 13 a 0x68000068 sia vuota. Nei quattro scenari pari conserva lo stato ereditato. Nei quattro dispari impone D+8=0 prima del servizio. In ogni caso inizializza con 0xa5 i 40 byte del contesto a 0x8f9b0204 e quattro byte di guardia per lato. [Script Ghidra](../ghidra/D90Service23Return.java)
+
+Con il bit presente il servizio ritorna a 0x406c6 con R12=0 e SP recuperato. Il nodo e la sentinella si collegano in entrambe le direzioni, la bitmap acquisisce la maschera 0x00080000, D+8 diventa zero e D+0x18 contiene il puntatore al contesto. Le parole a +0, +4, +8 e +0x24 del contesto valgono 0x11201a, 0x001f0030, 0x4050a e zero. Il byte a 0x44 termina a 1 nella RAM simulata. Con il bit cancellato il ritorno locale ha R12=0xc1 e SP recuperato. I valori finali della regione OS, del contesto e del byte a 0x44 coincidono con quelli all'ingresso del servizio.
+
+Il confronto copre i 4096 byte da 0x68000000, i 48 byte del contesto con guardie e il byte a 0x44. Ghidra 12.1.4, profilo AB-85, programma B in sola lettura, log locale `work/service23-return.log`. Il punto di arresto precede l'epilogo del dispatcher. Restano aperti il ramo con controllo corrente uguale a D, il ritorno al chiamante utente e l'esecuzione del contesto sulla fotocamera.
+
+## AB-150 · Ritorno utente del servizio -23
+
+Componente B del campione AB-1. Dagli otto stati AB-149 a 0x406c6, il dispatcher esegue l'epilogo originale, inclusa EXTSB R12 a 0x406d0, e RETI a 0x406f4. Nei quattro casi eleggibili il chiamante riceve R12=0. Nei quattro casi con bit 0x10 cancellato dal banco riceve R12=0xffffffc1 (-63). Il PC arriva a 0x112016 con PS uguale alla parola salvata nel frame, S=I=1 e ILM=31. Lo stop precede l'istruzione a 0x112016. [Script Ghidra](../ghidra/D90Service23UserReturn.java)
+
+Prima di RETI, SP=SSP=0x81003ff8. Subito dopo, il modello espone SP=0x81004000, SSP=0x81003ff8 e USP conservato. Come in AB-123, il banco sincronizza esplicitamente SSP con lo stack supervisore consumato e seleziona USP come SP attivo. Gli 80 byte controllati dello stack utente coincidono con lo stato precedente all'epilogo. Il comportamento del cambio di banco sulla fotocamera resta aperto. Ghidra 12.1.4, profilo AB-85, database B in sola lettura, log locale `work/service23-user-return.log`.
+
+## AB-151 · Ritorno della quinta chiamata al candidato
+
+Componente B del campione AB-1. [D90FifthCallReturn.java](../ghidra/D90FifthCallReturn.java) estende AB-150 importando la finestra originale [0x112016,0x11201a). Dagli otto confini utente a 0x112016 esegue LD @SP+,RP e RET, raggiungendo 0x1000f2. Verifica SP aumentato di quattro byte, RP=0x1000f2, R12 conservato a 0 oppure 0xffffffc1 (-63), S=I=1 e ILM=31. Gli 80 byte dello stack utente confrontati restano uguali al confine AB-150. Il tratto eredita le precondizioni e la selezione esplicita dello stack di AB-149/150.
+
+Il listato statico del seguito mostra LDI:32 #0x10fcc2,R12 a 0x1000f2 e CALL @R12 a 0x1000f8. Queste istruzioni sovrascrivono il risultato in R12 prima della chiamata successiva, senza confronto o ramo intermedio. Il punto di arresto dell'emulazione precede la LDI. La nuova chiamata e i suoi effetti restano da analizzare.
+
+Otto ritorni verificati, quattro con risultato zero e quattro con -63. Ghidra 12.1.4, linguaggio isolato AB-85, database B in sola lettura con -noanalysis. Log locale `work/fifth-call-return.log` senza WARN/ERROR/eccezioni. Il risultato riguarda il percorso software sul banco con RAM sintetica e gli adattamenti INT/stack già documentati. Prossima priorità è mappare la routine 0x10fcc2 e le sue dipendenze.
+
+## AB-152 · Sesta chiamata e richiesta per il record 8
+
+Componente B del campione AB-1. A 0x10fcc2 la routine carica R4=8, R5=0 e R12=0xe9. EXTSB produce -23 in R12 prima di INT #0x40 a 0x10fcca. Il listato termina con RET a 0x10fccc. [Listato statico](../ghidra/D90SixthCallContext.java)
+
+Negli otto scenari AB-151, quattro per ciascun risultato precedente, il firmware esegue la CALL da 0x1000f8 e raggiunge 0x10fcca con i tre argomenti previsti, RP=0x1000fa, S=1 e SP uguale al valore all'ingresso del tratto. La prova si arresta prima di INT. Nella tabella originale AB-148 il record 8 a 0x5c4d4 contiene +0=0x68000270, +0x10=0x0010fcce e +0x14=0x8f993e04. Questi valori provengono dalla lettura statica del database. Restano da verificare l'esito del servizio per questo record e le scritture nel relativo contesto. [Prova emulata](../ghidra/D90SixthServiceRequest.java)
+
+Ghidra 12.1.4, database B in sola lettura, profilo isolato AB-85 per l'emulazione. Log locali `work/sixth-call-context.log` e `work/sixth-service-request.log`.
+
+## AB-153 · Inserimento del record 8 nella lista 4
+
+Componente B del campione AB-1. Negli otto scenari AB-152 il controllo del record 8 a 0x68000270 è diverso dal controllo corrente. Il campo +8 vale 16, la mezza parola +0xc vale 4 e la lista a 0x68000020 è vuota. Il banco conserva questo stato e prepara 48 byte a 0xa5 per il contesto e le guardie. Al sito 0x10fcca applica l'ingresso INT utente di AB-147, parametrizzato per sito e indice. Il dispatcher e il servizio eseguono le istruzioni originali fino al ritorno locale a 0x406c6. [Script Ghidra](../ghidra/D90SixthServiceReturn.java)
+
+Il servizio restituisce zero in tutti gli otto casi, quattro per ciascun esito della prima richiesta. Nodo e sentinella puntano reciprocamente in entrambe le direzioni, la bitmap incorpora 0x10000000 e il campo +8 del nodo diventa zero. Il campo +0x18 contiene 0x8f993e04. A questa destinazione le parole +0, +4, +8 e +0x24 valgono rispettivamente 0x10fcce, 0x001f0030, 0x4050a e zero. SP recupera il valore all'ingresso del servizio.
+
+Il confronto finale copre i 4096 byte della regione OS, i 40 byte del nuovo contesto con quattro byte di guardia per lato e i 40 byte del precedente contesto a 0x8f9b0204. I collegamenti della lista 13 e il contesto precedente conservano i valori ereditati in ciascuno scenario. Ghidra 12.1.4, profilo isolato AB-85, database B in sola lettura e log locale `work/sixth-service-return.log`. Il banco si ferma prima dell'epilogo del dispatcher. L'esecuzione del contesto preparato resta da verificare.
+
+## AB-154 · Ritorno della sesta chiamata
+
+Componente B di AB-1. [D90SixthCallReturn.java](../ghidra/D90SixthCallReturn.java) prosegue da AB-153 attraverso epilogo e RETI originali. Il banco applica la selezione esplicita dello stack utente già documentata in AB-150. Il PC raggiunge 0x10fccc con R12=0, PS recuperato, S=I=1 e ILM=31. La RET originale raggiunge 0x1000fa conservando SP, RP=0x1000fa e R12=0 in tutti gli otto scenari.
+
+Il seguito statico mostra LDI:32 #0x14ca90,R12 a 0x1000fa e CALL @R12 a 0x100100. Lo stop emulato precede queste istruzioni. Log finale locale `work/sixth-call-return.log`, Ghidra 12.1.4, profilo AB-85 e database B in sola lettura, senza WARN/ERROR/eccezioni. La prima versione del banco generalizzava erroneamente il controllo della parola in cima allo stack dalla quinta chiamata alla sesta. La sesta conserva RP nel registro e non ha il push della quinta. Il controllo specifico della quinta è stato mantenuto nel suo punto originale e la versione finale è stata rieseguita attraverso entrambe le chiamate.
+
+## AB-155 · Lista corrente dopo la preparazione dei task
+
+Componente B di AB-1. Negli otto stati AB-154 il candidato esegue la settima CALL da 0x100100 a 0x14ca90. Questa routine salva RP e chiama 0x19d89c, già studiata isolatamente in AB-72. All'ingresso, RP=0x14ca9a e sullo stack utente è salvato 0x100102. Qui termina la nuova esecuzione. [Prova della settima chiamata](../ghidra/D90SeventhCallEntry.java)
+
+Il controllo corrente 0x680001ec coincide con la testa della lista 1 in tutti gli otto casi. La lista 4 punta al controllo del record 8. Nei quattro casi con il record 28 in lista 13 la bitmap vale 0x90080000. Negli altri quattro la lista 13 è vuota e la bitmap vale 0x90000000. In entrambi i casi il primo bit impostato a partire da sinistra corrisponde alla lista 1. Applicando il criterio di ricerca AB-116/117 a questa istantanea si ritroverebbe quindi il controllo corrente. Questa deduzione presuppone lo stesso percorso del dispatcher. Il punto in cui il firmware cambia scelta resta da individuare.
+
+Il listato dei due ingressi preparati mostra che il record 8 (0x10fcce) salva R8 e RP, esegue ENTER, carica 0x60 in R8 e chiama 0x10fd26. Il record 28 (0x11201a) salva R8 e RP, esegue ENTER e chiama 0x112244. Questi due prefissi sono osservazioni statiche. [Script per i tre prefissi](../ghidra/D90PreparedTaskEntries.java)
+
+Ghidra 12.1.4, programma B in sola lettura, profilo AB-85 per il banco emulato. Log locali `work/prepared-task-entries.log` e `work/seventh-call-entry.log`. Prossima indagine mirata ai punti di attesa o uscita del candidato che possono cambiare il controllo in testa alla lista 1.
+
+## AB-156 · Cambio della lista del controllo corrente
+
+Componente B del campione AB-1. Nel seguito della settima chiamata compare INT a 0x14cac2 per il servizio -48 (R4=3, R5=0x200). Tornato al candidato, il listato da 0x100102 contiene dodici CALL prima di INT a 0x100164 per il servizio -27 (R4=0, R5=7). Un successivo INT a 0x100184 richiede -47. Le tre voci della tabella a 0x40612, 0x4063c e 0x40614 portano rispettivamente a 0x41a5a, 0x4168e e 0x41af4. Sono finestre statiche lineari. La raggiungibilità dipende dai ritorni delle chiamate intermedie. [Listati e calcolo delle voci](../ghidra/D90CandidateSchedulingSites.java)
+
+Nel gestore -27, il bit 0x20 del byte a frame+0x4f e R4=0 selezionano il controllo corrente tramite la parola a 0x68000000. Il ramo con stato zero e indice valido chiama 0x418a0 e 0x4186e, scrivendo il nuovo indice a controllo+0xc nel delay slot. Nel banco si conservano le liste AB-155 e si impongono PC, RP, SP, FP, S, I, gli argomenti 0/7 e il byte 0x30 nel frame. L'esecuzione parte direttamente dal gestore e si arresta a 0x406c6. [Prova isolata](../ghidra/D90CurrentListChange.java)
+
+Negli otto casi il servizio ritorna zero, ripristina SP, svuota la lista 1 e collega in entrambe le direzioni il controllo corrente 0x680001ec alla lista 7. La lista 4 conserva in testa il controllo del record 8. La bitmap perde 0x80000000 e acquisisce 0x02000000, diventando 0x12080000 o 0x12000000 secondo lo stato precedente del record 28. Il puntatore corrente conserva il suo valore. Secondo il criterio AB-117 la prima lista selezionabile è ora la 4. Il cambio di contesto e l'esecuzione del record 8 restano da verificare. Anche l'effetto delle chiamate intermedie sullo stato all'ingresso naturale del servizio resta aperto.
+
+Ghidra 12.1.4, programma B in sola lettura, profilo AB-85 per il banco. Log locali `work/candidate-scheduling-sites.log` e `work/current-list-change.log`.
+
+## AB-157 · Selezione ed esecuzione del record 8
+
+Componente B di AB-1. Negli otto scenari AB-156 il banco conserva le liste, la bitmap e il contesto del record 8 preparato dal servizio -23. Impone PC=0x40e2a e S=1, SP=USP=0x820000c0 in RAM dedicata e SSP=0x81003ff8 con frame uscente sintetico PC=0x100166 e PS=0x1f0030. Ai campi +40…+76 del contesto entrante assegna parole distinguibili. I primi 40 byte ereditano le scritture firmware e il riempimento sintetico AB-153. L'ingresso isola la decisione dello scheduler dalle chiamate intermedie, dall'epilogo del servizio -27 e dal trigger reale del vettore. [Prova Ghidra](../ghidra/D90Record8Dispatch.java)
+
+Il caricamento originale della bitmap e l'adattatore SRCH1 AB-116 producono indice 3. Il dispatcher seleziona 0x68000270 dalla lista 4 mentre il controllo corrente vale ancora 0x680001ec. Salva il contesto uscente, carica SP=0x8f993e04 dal record 8 e prepara il frame di ritorno sullo stack supervisore. Il banco applica esplicitamente i cambi di stack nei punti di transizione AB-119–123. Prima di RETI il puntatore corrente vale 0x68000270, RP vale 0x4050a e il frame contiene 0x10fcce e 0x001f0030.
+
+RETI raggiunge 0x10fcce in stato utente. Il prologo originale del record 8 viene eseguito fino alla prima chiamata a 0x10fd26, con RP=0x10fcda e R8=0x60. Tutti gli otto scenari superano i controlli, inclusi i quattro con record 28 presente in lista 13. Ghidra 12.1.4, profilo AB-85, programma B in sola lettura, log locale `work/record8-dispatch.log`. Il comportamento del callee, la funzione fotografica del task e il momento in cui avviene la selezione sulla fotocamera restano aperti.
+
+## AB-158 · Il task 8 inizializza la tabella RAM usata dal costruttore B
+
+Componente B di AB-1. Dagli otto stati AB-157 a 0x10fd26 la routine salva registri e chiama 0x11031c. Questo helper inizializza tramite 0x105b02 le due parole della testa a 0x8f52f274 con il suo stesso indirizzo. Nel blocco adiacente a 0x8f52f27c scrive gli indici da 0 a 70 nel byte +8 di ciascuna delle 71 righe da 12 byte. Si ferma davanti a INT a 0x11034a con R12=-48, R4=3 e R5=0x80. Il controllo corrente resta 0x68000270. Il banco predispone 0xcd in testa, tabella e guardie e confronta tutti gli 868 byte finali. [Prova emulata](../ghidra/D90Record8TableInit.java)
+
+Il precedente listato del costruttore B a 0x10ff08 (log locale `work/b-prepare.log`) mostra a 0x10ff68–0x10ff7a la stessa base RAM e lo stesso passo 12, con accesso al byte +9 della riga selezionata dal byte letto tramite R5. Questo stabilisce un uso comune della struttura. La tabella ROM a 0x1c3fa4 descritta in AB-43 ha invece voci da 16 byte. Resta aperto il significato fotografico delle singole righe.
+
+Nel seguito statico di 0x10fd26, dopo il ritorno dell'helper, compaiono scritture agli indirizzi 0x60, 0x61, 0x63, 0x100 e 0x10e. A 0x10fd62 il codice testa un bit del byte a 0x50000107 e dirama a 0x10fdba oppure prosegue verso un'altra richiesta OS. Il confine emulato precede queste operazioni. [Listati statici](../ghidra/D90Record8FirstCallee.java)
+
+Ghidra 12.1.4, database B in sola lettura, profilo AB-85 per il banco. Log locali `work/record8-first-callee.log` e `work/record8-table-init.log`. Otto inizializzazioni superate senza WARN/ERROR. L'esecuzione eredita l'ingresso sintetico nel dispatcher di AB-157.
+
+## AB-159 · Servizio -48 e primo ramo periferico del task 8
+
+Componente B del campione AB-1. Dal confine AB-158 a 0x11034a il banco applica l'ingresso INT utente esplicito e segue dispatcher, servizio -48, epilogo e RETI. Il servizio usa la tabella a 0x5cb68 (intestazione 22, stride 16) per selezionare l'oggetto 3 a 0x68000b20. La lista d'attesa ereditata è vuota. Negli otto scenari il campo +8 passa da zero a 0x80, R12 ritorna zero e il byte condiviso 0x68000132 termina col bit 0x80 impostato. Il confronto copre tutti i 4096 byte della regione OS. Un primo controllo del banco attendeva erroneamente il bit condiviso cancellato al ritorno. È stato corretto e rieseguito. [Prova del servizio](../ghidra/D90Record8Service48.java)
+
+Il codice originale ritorna attraverso 0x11034c all'interno di 0x10fd26. Al confine 0x10fd5c il banco verifica i byte 0x60=0x40, 0x61=0x41, 0x63=0, la parola 0x100=0x278cf e la mezza parola 0x10e=0. Per ciascuno degli otto scenari si reimposta PC=0x10fd5c e si impone il byte sintetico a 0x50000107 prima a zero, poi a 0x40. Nel primo caso il BEQ raggiunge 0x10fdba. Nel secondo il PC arriva a 0x10fd66, prima del corpo del ramo alternativo. Il byte imposto resta conservato. Sono 16 prove del tratto LDI/ADD/BTSTH/BEQ. Le istruzioni precedenti di inizializzazione sono eseguite una sola volta per scenario. [Prova dei due rami](../ghidra/D90Record8HardwareBranch.java)
+
+Ghidra 12.1.4, profilo AB-85, database B in sola lettura. Log finali locali `work/record8-service48.log` e `work/record8-hardware-branch.log` senza WARN/ERROR/eccezioni. Il modello usa RAM agli indirizzi periferici e conserva gli adattamenti di ingresso INT e selezione dello stack già dichiarati. Restano aperti l'effetto fisico delle scritture e la provenienza hardware del bit 0x40 a 0x50000107.
+
+## AB-160 · Due preparazioni del task 8 e servizio -47
+
+Componente B di AB-1. [D90Record8Modes.java](../ghidra/D90Record8Modes.java) riparte dal confine AB-159, salvando i registri usati e i 4096 byte iniziali di RAM bassa. Ogni variante ripristina questi valori, impone PC=0x10fd5c, assegna il byte sintetico a 0x50000107 e prepara il byte a 0x8f52f7fd con guardie. Le liste e i contesti OS sono quelli ereditati. Le due varianti raggiungono le rispettive richieste OS.
+
+| Byte a 0x50000107 | Byte a 0x8f52f7fd | Mezza parola a 0x42, valore iniziale H | Sito INT | R4 | R5 | R12 |
+|---|---|---|---|---|---|---|
+| 0 | 1 | (H & 0xcfff) OR 0x2000 | 0x10fdf4 | 3 | 0xfffffffe | -47 |
+| 0x40 | 3 | H OR 0x3000 | 0x10fd94 | 3 | 0xfffffffd | -47 |
+
+In entrambi i rami il byte a 0x41 viene mascherato con 0xbf e il byte a 0x40 riceve 0xbf. Il confronto include tutti i 4096 byte di RAM bassa, il byte di modalità e le sue guardie. L'ingresso INT esplicito segue poi il dispatcher fino al servizio -47 a 0x41af4 e al ritorno locale a 0x406c6. R12 vale zero. Nei 4096 byte della regione OS i valori finali coincidono con quelli precedenti alla variante. In particolare l'oggetto 3 conserva il campo +8=0x80. I bit che le due maschere cancellerebbero erano già zero. Questi casi verificano il comportamento sullo stato ereditato, mentre l'effetto di cancellazione con bit inizialmente impostati resta da provare.
+
+Sedici casi superati, due varianti per ciascuno degli otto scenari. Ghidra 12.1.4, profilo AB-85, database B in sola lettura e log locale `work/record8-modes.log` senza WARN/ERROR/eccezioni. I registri periferici sono RAM sintetica. Il significato fisico dei valori di modalità 1/3 e dei bit di controllo resta aperto. Il ramo con byte 0x40 ha una successiva lettura dello stesso bit e una possibile richiesta -170 a 0x10fdb4, da analizzare.
