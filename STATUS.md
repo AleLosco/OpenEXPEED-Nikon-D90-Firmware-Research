@@ -1,6 +1,6 @@
 # Stato del progetto
 
-Aggiornato l'11 novembre 2026. Questo file riassume il risultato attuale; il README presenta il progetto, mentre i documenti tecnici conservano evidenze, ipotesi e revisioni delle interpretazioni.
+Aggiornato il 12 novembre 2026. Questo file riassume il risultato attuale; il README presenta il progetto, mentre i documenti tecnici conservano evidenze, ipotesi e revisioni delle interpretazioni.
 
 Il progetto è un laboratorio di ricerca con analizzatore riproducibile e prove emulative di singole routine. Non contiene una patch funzionale validata sulla fotocamera né un emulatore completo della D90.
 
@@ -26,13 +26,28 @@ Le percentuali sono stime di copertura rispetto agli obiettivi di ciascuna area.
 | Emulazione della fotocamera | 20% | Segmenti OS/periferica collegati sulla stessa memoria; INT/SSP espliciti e RAM sintetica. Mancano reset completo, scheduler, periferiche e tempi realistici |
 | Patch sperimentali validate | 5% | Nessuna patch utile verificata sulla fotocamera; mancano candidato, confronto prima/dopo e procedura di recupero |
 
-Le stime sono indicative e possono cambiare quando si amplia o si restringe il perimetro. Le prove fino ad AB-147 comprendono analisi statica, routine isolate e segmenti collegati con confini sintetici espliciti. La revisione dell'11 novembre amplia il percorso delimitato dal contesto utente fino alla selezione del servizio OS -23; non dimostra un avvio completo o copertura hardware. La stima complessiva non è una media aritmetica delle aree. Le prove sui registri della periferica usano RAM sintetica e non identificano ancora la sorgente fisica dell’interrupt. Le revisioni indipendenti del 4 e 11 novembre hanno segnalato rilievi di bassa severità poi corretti; i loro limiti sono registrati nelle sezioni tecniche.
+Le stime sono indicative e possono cambiare quando si amplia o si restringe il perimetro. Le prove fino ad AB-160 comprendono analisi statica, routine isolate e segmenti collegati con confini sintetici espliciti. Il percorso per R4=28/R5=0 comprende il ritorno al chiamante utente del servizio OS -23 in RAM sintetica. La stima complessiva non è una media aritmetica delle aree. Le prove sui registri della periferica usano RAM sintetica e non identificano ancora la sorgente fisica dell’interrupt. Le revisioni indipendenti del 4 e 11 novembre hanno segnalato rilievi di bassa severità poi corretti; i loro limiti sono registrati nelle sezioni tecniche.
 
 La revisione indipendente AB-78–AB-97 ha individuato due lacune di robustezza/riproducibilità, corrette e verificate localmente: PC dispari nell’adattatore INT e verifica incompleta degli input del linguaggio sperimentale. Test e riesecuzioni mirate sono documentati nella [rettifica AB-85/AB-86](docs/communication-topology.md#rettifica-di-riproducibilità-ab-85ab-86--6-novembre-2026). Quelle correzioni non avevano modificato le stime: riguardavano il banco di prova, non nuova copertura hardware.
 
+## Come leggere i progressi recenti
+
+Le stime sopra sono valutazioni qualitative del perimetro di ricerca. Non derivano da un conteggio esaustivo e non permettono di stimare il tempo residuo. Il valore complessivo 45% serve come riferimento storico approssimativo. I traguardi verificabili seguenti descrivono meglio lo sviluppo attuale.
+
+| Traguardo | Stato locale e riferimento |
+|---|---|
+| Estrarre e analizzare i campioni di riferimento | Riproducibile per A/B e L, con limiti sui significati dei dati |
+| Collegare inizializzazione OS e contesto utente | Segmenti verificati in AB-104–123 con adattamenti espliciti |
+| Seguire le chiamate d'inizializzazione del candidato | Sei chiamate completate nel percorso delimitato, con due richieste del servizio -23 e ritorno al candidato in AB-154 |
+| Eseguire un contesto preparato e verificarne la funzione | AB-157 collega selezione del record 8, ripristino e prima CALL in otto scenari con ingresso sintetico nel dispatcher. Funzione del task ancora aperta |
+| Far avanzare la fotocamera con periferiche e tempi modellati | Aperto |
+| Validare una patch con effetto fotografico identificato | Aperto |
+
+AB-148–153 approfondiscono un tratto dell'inizializzazione e i suoi due inserimenti in lista. La copertura delle periferiche e dei tempi resta quella precedente. Il passo strategico successivo è collegare un contesto preparato alla sua effettiva esecuzione nel banco, identificando prima ingressi e dipendenze. Gli identificativi AB registrano risultati, senza costituire unità uniformi di avanzamento.
+
 ## Priorità attuale
 
-AB-118–AB-147 collegano il prefisso del vettore 0x3f, il salvataggio e ripristino del contesto e la selezione di un candidato fino alla quinta chiamata d'inizializzazione. Con un ingresso INT utente e frame supervisore preparati esplicitamente dal banco, il dispatcher originale raggiunge il servizio OS -23 a 0x414da. La prossima priorità è analizzare staticamente quel servizio: mappare argomenti e accessi in memoria per R4=28 e R5=0, poi progettare una prova delimitata senza confondere memoria sintetica ed effetti hardware. Restano aperti accettazione fisica degli interrupt, temporizzazione, scheduler e avvio completo. Modello consigliato: **Astra Medio**, per seguire le precondizioni attraverso il dispatcher e delimitare gli effetti della routine.
+AB-160 verifica 16 preparazioni delle modalità software 1/3 del task 8 e il ritorno del servizio -47 con le due maschere dell'oggetto 3. I bit interessati erano già zero nello stato ereditato. La prossima priorità è identificare precondizioni e struttura degli argomenti della richiesta -170 a 0x10fdb4, quindi seguirne il percorso delimitato. [Evidenze AB-160](docs/communication-topology.md#ab-160--due-preparazioni-del-task-8-e-servizio--47)
 
 ## Contesto e progressione della ricerca
 
@@ -58,7 +73,7 @@ Criteri di mantenimento della pubblicazione:
 
 Una riproduzione su una seconda macchina resta utile come verifica indipendente. Non è stata eseguita e non va confusa con una nuova importazione sullo stesso host. Le prove numerose non misurano la percentuale di firmware compresa: molti casi variano gli ingressi dello stesso blocco di poche istruzioni.
 
-Descrizione da impostare nel campo About di GitHub: “Independent Nikon D90 firmware research. Progress ~45%: package analysis 85%, update/flash 65%, communications 55%, emulation 20%, validated patches 5%. No firmware included.” Argomenti: nikon, firmware, reverse-engineering, ghidra, camera.
+Descrizione About proposta: “Independent Nikon D90 firmware research. Progress ~45%: formats/tools 85%, update/flash 65%, communications 55%, emulation 20%, validated patches 5%. Ghidra and bounded OS/task experiments. No firmware included.” Argomenti: nikon, firmware, reverse-engineering, ghidra, camera.
 
 ## Verifica di preparazione del 3 novembre 2026
 
@@ -344,3 +359,7 @@ Otto prove verificano entrambe le teste, i due elementi collegati e lo stato al 
 ### Aggiornamento tecnico AB-147
 
 Otto prove raggiungono 0x414da per il servizio -23 dal confine AB-146 con ingresso INT utente sintetico e dispatcher originale. [Evidenze AB-147](docs/communication-topology.md#ab-147--ingresso-utente-modellato-e-selezione-del-servizio--23). Prossima priorità: identificare gli accessi del servizio e gli esiti per R4=28, R5=0 prima di proseguirne l'esecuzione. Stima complessiva circa 45%.
+
+### Aggiornamento tecnico AB-148
+
+L'analisi statica del servizio -23 identifica il descrittore 28 a 0x5c704 e il percorso che, se il controllo a D+8 lo consente, prepara un contesto e chiama l'inserimento in lista 0x4186e. L'esito è compatibile con una lista selezionata dal valore 13, ma non prova che il task venga eseguito. [Evidenze AB-148](docs/communication-topology.md#ab-148--mappa-statica-del-servizio-os--23). Prossima priorità: emulare il servizio con argomenti 28/0 su regioni sintetiche, verificando rami e scritture senza attribuire effetti fisici agli indirizzi. La stima complessiva resta circa 45%: questa fase aggiunge una mappa statica, non copertura hardware o avvio completo.

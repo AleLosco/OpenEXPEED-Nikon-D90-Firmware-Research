@@ -208,3 +208,29 @@ Per AB-145 eseguire `D90FifthCallContext.java`, `D90FifthInitContext.java` e `D9
 Per AB-146 eseguire `D90FifthLists.java` con programma B e argomenti di AB-144. Atteso “eight fifth-call list preparations passed before INT 0x40”. Lo stop è prima dell'INT a 0x112014.
 
 Per AB-147 eseguire `D90FifthServiceEntry.java` con programma B e argomenti di AB-146. Atteso “eight modeled user INT entries dispatched to 0x414da”. Il frame INT è predisposto esplicitamente sullo stack supervisore.
+
+Per AB-148 eseguire `D90Service23Context.java` sul programma B esistente con `-readOnly -noanalysis` e lo scriptPath `ghidra/`. Il log atteso contiene l'analisi limitata di 0x414da, i blocchi 0x41534/0x415a2/0x415aa/0x41852 e il record 28 della tabella a 0x5c40c. Lo script legge il database locale senza modificarlo e non esegue il servizio. Consultare AB-148 per accessi, ipotesi e limiti.
+
+Per AB-149 eseguire `D90Service23Return.java` con programma B, opzioni e argomenti di AB-147. Atteso “four eligible and four ineligible service returns verified”.
+
+Per AB-150 eseguire `D90Service23UserReturn.java` con programma B, opzioni e argomenti di AB-149. Atteso “eight user returns at 0x112016 with results 0 or -63”.
+
+Per AB-151 eseguire `D90FifthCallReturn.java` con programma B, opzioni e argomenti di AB-150. Atteso “eight fifth-call returns at 0x1000f2 preserve 0 or -63”, seguito dalle due istruzioni statiche LDI/CALL.
+
+Per AB-152 eseguire `D90SixthCallContext.java` sul programma B con `-readOnly -noanalysis`, poi `D90SixthServiceRequest.java` con le opzioni e il profilo di AB-151. Atteso “eight sixth calls reached INT with service -23 and arguments 8/0”.
+
+Per AB-153 eseguire `D90SixthServiceReturn.java` sul programma B con opzioni e profilo di AB-152. Atteso “eight second service returns inserted record 8 in list 4”.
+
+Per AB-154 eseguire `D90SixthCallReturn.java` con programma B e argomenti di AB-153. Atteso “eight sixth-call returns reached 0x1000fa with result zero”.
+
+Per AB-155 eseguire `D90PreparedTaskEntries.java` sul programma B in sola lettura con -noanalysis e senza argomenti, poi `D90SeventhCallEntry.java` con le opzioni e il profilo di AB-154. Attesi tre prefissi e “eight entries at 0x19d89c retain current control at head of list 1”.
+
+Per AB-156 usare `D90CandidateSchedulingSites.java` sul programma B con -readOnly -noanalysis, poi `D90CurrentListChange.java` con opzioni e profilo AB-155. Atteso “eight isolated service -27 returns moved current control from list 1 to 7”.
+
+Per AB-157 eseguire `D90Record8Dispatch.java` con programma B e argomenti di AB-156. Atteso “eight selections restored record 8 and reached its first call”.
+
+Per AB-158 eseguire `D90Record8FirstCallee.java` sul programma B in sola lettura senza argomenti, poi `D90Record8TableInit.java` con le opzioni e il profilo di AB-157. Atteso “eight table initializations reached service -48 with 71 indexed rows”.
+
+Per AB-159 usare `D90Record8Service48.java` oppure `D90Record8HardwareBranch.java` con opzioni e profilo AB-158. Il secondo comprende la prova del servizio e deve riportare “16 controlled peripheral branches passed after the original service return”.
+
+Per AB-160 eseguire `D90Record8Modes.java` sul programma B con opzioni e profilo AB-159. Atteso “16 mode preparations and service -47 returns verified”.
