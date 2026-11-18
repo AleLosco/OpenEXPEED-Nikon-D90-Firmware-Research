@@ -234,3 +234,17 @@ Per AB-158 eseguire `D90Record8FirstCallee.java` sul programma B in sola lettura
 Per AB-159 usare `D90Record8Service48.java` oppure `D90Record8HardwareBranch.java` con opzioni e profilo AB-158. Il secondo comprende la prova del servizio e deve riportare “16 controlled peripheral branches passed after the original service return”.
 
 Per AB-160 eseguire `D90Record8Modes.java` sul programma B con opzioni e profilo AB-159. Atteso “16 mode preparations and service -47 returns verified”.
+
+Per AB-161 eseguire `D90Record8Request170.java` con programma B, opzioni e profilo di AB-160. Atteso “eight second-read bypasses and eight service -170 entries verified”.
+
+Per AB-162 eseguire `D90Record8WaitPrefix.java` con programma B, opzioni e profilo di AB-161. Verificare la riga finale “eight unsatisfied task 8 waits reached 0x41c76 with mask and mode saved”.
+
+Per AB-163 eseguire `D90Record8WaitList.java` con le opzioni e il profilo di AB-162. Verificare otto righe “AB-163 saved halfword” e il riepilogo “eight task 8 transfers from ready list 4 to object 3 verified”.
+
+Per AB-164 eseguire `D90Record8SecondList.java` sul programma B con opzioni e profilo di AB-163. Verificare otto righe “AB-164 node=68000cd0 head=68000128 value=100” e il riepilogo “eight second-list insertions and service -170 returns verified”.
+
+Per AB-165 eseguire `D90Record8WaitReturn.java` con opzioni e profilo di AB-164. Verificare otto righe “AB-165 local=8f993e2c before=12340028 stored=00000064” e il riepilogo “eight task 8 user returns and caller stores verified”.
+
+Per AB-166 eseguire `D90Record8WaitTick.java` con programma B, opzioni e profilo di AB-165. Verificare il riepilogo “eight single vector 18 entries decremented task 8 node from 100 to 99”.
+
+Per AB-167 eseguire `D90Record8WaitExpiry.java` sul programma B con opzioni e profilo di AB-166. Verificare i riepiloghi AB-166 e “eight zero boundaries and subsequent expiries returned task 8 to ready list 4”. Il test imposta il contatore ereditato a 1 prima dei due ingressi aggiuntivi.
