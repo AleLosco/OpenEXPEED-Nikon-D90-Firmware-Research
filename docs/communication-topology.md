@@ -59,7 +59,6 @@ Nel caso a&3=0, b&3=1, il nuovo byte è `(a & 0xfc) | 1`. Nel caso a&3=1, b&3=0,
 
 Sono state provate tutte le 16 combinazioni dei due bit bassi, ciascuna con quattro configurazioni dei bit alti per ogni buffer (0x00, 0x54, 0xa8, 0xfc): 256 casi. I punti di arresto sono stati 32 volte 0x1011b0, 16 volte 0x110412, 96 volte 0x10a806 e 112 volte 0x1115b8. I controlli includono il buffer b invariato, i due byte successivi di a invariati, i registri della notifica/evento e il flag inizializzato a 0x85. Il test controlla inoltre il puntatore della callback nella voce 0x34.
 
-
 RAM, stack e ingressi sono sintetici. La prova non copre tutti i possibili byte (256 combinazioni su 65.536), il trasporto precedente, l’esecuzione delle funzioni esterne, il ritorno finale o gli effetti fotografici. Nei percorsi fermati su una chiamata non si conclude che l’evento successivo non avverrà: il codice dopo quella chiamata non è eseguito. Nessuna funzione esterna viene simulata con un ritorno inventato.
 
 Il confronto delle istruzioni con altri moduli GitHub è descritto in [github-projects.md](related-projects.md). Il prossimo passo è studiare 0x1011b0 e 0x10a806 e trovare dove vengono inizializzati i due buffer; modello consigliato: Astra Medio.
@@ -120,7 +119,6 @@ Indicando con S il nuovo valore a 0x8f52e484 e con M quello a 0x8f52e480:
 
 La funzione 0x106f14 confronta R4 con il bit 0x04 del byte a 0x8f52f1bb. Se deve cambiarlo, lo aggiorna e chiama 0x110412 con R4=0x0b; altrimenti ritorna. Quel byte è interno al buffer della voce 0x0b già inventariata. La funzione 0x106f48 chiama questo aggiornamento con zero, esamina anche il bit 0x800 della parola di stato e, in altri rami, può richiederlo con uno. Questi seguiti sono stati letti staticamente, non eseguiti dalle 80 prove. Non viene quindi dichiarata una trasmissione completa della voce 0x0b o una funzione fotografica identificata.
 
-
 ### Due lettori verificati del bit a 0x8f52e35c
 
 Nella funzione che inizia a 0x10a810, R8 viene caricato con 0x8f52e35c. Sono stati selezionati due blocchi che leggono il bit 0x80 impostato da 0x10a806:
@@ -179,7 +177,6 @@ Il seguito statico contiene una cancellazione del bit 0x04 a 0x8f52f1bd e una no
 ### Limiti e seguito
 
 Una ricerca mirata del testo `4000d200` nel repository Nikon Hacker non ha restituito risultati. È un esito limitato a quella query, non prova che il progetto non documenti il dispositivo con un altro nome o indirizzo simbolico. Nessuna attribuzione hardware è stata importata da altri modelli.
-
 
 Le nuove prove sono passate sia nel progetto di lavoro sia dopo una nuova importazione B sullo stesso host, senza ERROR, WARN o eccezioni nei log. Non si tratta di una verifica indipendente su un’altra macchina. La prossima domanda è il ruolo dei registri 0x4000d2xx–0x4000d5xx e degli ingressi che consentono l’accensione del bit del messaggio 0x0b. Servono riscontri sulla periferica e sui chiamanti, non ulteriori combinazioni dello stesso test. Modello consigliato: Astra Medio.
 
@@ -241,7 +238,6 @@ Per riprodurre, ispezionare i tre blocchi nel programma B importato secondo CONT
 
 Sul programma B del campione AB-1, [D90MaskRelease.java](../ghidra/D90MaskRelease.java) esegue due volte il blocco da 0x10305c sullo stesso elemento sintetico (R8=0x8f8715bc). La prima esecuzione parte con +0x4a=3 e R6=1, scrive 2 e raggiunge 0x1030a0. La seconda riparte dal valore 2 lasciato dalla prima, con R6=2, scrive 0 e raggiunge 0x103070. Lo script controlla entrambi i byte e l'indirizzo raggiunto. Eseguito su d90.hex in sola lettura, si ferma prima delle chiamate di gestione delle liste.
 
-
 Ricerca statica complementare nel primo intervallo di 64 KiB di codice mappato a partire da 0x100000: 25 mezze parole allineate soddisfano (word & 0xfff0)==0xc4a0, codifica candidata per LDI:8 con immediato 0x4a. Nel contesto delle store a 0x10718e e 0x107418, R0 vale zero. La maschera calcolata prima di 0x107412 viene scritta a +0x48. Un'altra store, a 0x108e06, scrive invece a R9+0x4a la metà bassa di R4 dopo la chiamata a 0x1bbf12. L'identità della struttura in R9 rispetto al pool di AB-46 resta da verificare. La ricerca copre una sola codifica e non stabilisce quale istruzione attivi i bit nell'elemento reale.
 
 ## AB-49 · Destinazione della scrittura candidata a 0x108e06
@@ -301,7 +297,6 @@ Componente B, campione AB-1. Il parser AB-53 richiede otto byte a 0x11dcd4. Dopo
 Componente B, campione AB-1. Sul percorso di AB-55 la routine 0x1b156e controlla il bit 0x02 del primo byte dell'oggetto. Se è acceso, ritorna zero. Altrimenti passa il puntatore letto a +0x80 alla catena 0x1b1524 → 0x1b8c0a. La voce selezionata è E = 0x8f6e8f6c + 0x60 × indice. Il CALL:D a 0x1b8c24 usa l'indirizzo letto da E+0x18. Nel delay slot carica R4 dalla prima parola di E. R5 contiene la posizione calcolata, R6 vale 1 e R7 punta al buffer. Un esito negativo della callback viene salvato a E+4 e tradotto in 0x80005011. Con un esito non negativo, 0x1b15b2 accende il bit 0x02 e la routine restituisce zero.
 
 [D90BufferFill.java](../ghidra/D90BufferFill.java) ha eseguito le istruzioni da 0x1b156e fino al ritorno su d90.hex in sola lettura, con indice sintetico 1. Con flag 0x42 la callback non viene raggiunta. Con flag 0x40 riceve R4=42, R5=114, R6=1 e il puntatore buffer in R7. La posizione deriva in questo caso da 100 + ((5−2) << (11−9)) + (10 mod 4). Gli esiti sintetici 0 e 3 portano il flag a 0x42. Con −5 il flag resta 0x40, E+4 contiene −5 e il chiamante riceve 0x80005011. Tutti i quattro casi hanno superato i controlli. Il contenuto di prova è scritto dalla callback simulata: la destinazione effettiva della chiamata sulla D90 dipende dall'inizializzazione di E+0x18. L'identità del dispositivo fisico resta aperta.
-
 
 ## AB-57 · Installazione della funzione di lettura a +0x18
 
@@ -364,7 +359,6 @@ In queste due parole i bit della maschera 6 sono già accesi. [D90AtamCommand.ja
 
 Componente B del campione AB-1. La routine a 0x19f274 conserva R4 in R9 e R5 in R11. Dopo il controllo a 0x19f6fc, il percorso accettato scrive R11 a 0x63000008. La chiamata a 0x19f2ae passa R9 a 0x19f75e tramite il delay slot. Nei tre chiamanti individuati con un riferimento letterale a 0x19f274, il valore variabile è il secondo argomento. La parola di comando è immediata in ciascun sito.
 
-
 | Chiamata | Comando | Selettore | Secondo argomento (aritmetica a 32 bit) |
 | --- | --- | --- | --- |
 | 0x1a0da0 | 0x201a0000 | 0x20 | R6 << 9 |
@@ -423,7 +417,6 @@ Componente B, campione AB-1. Nel percorso accettato di 0x1a07ae, la chiamata a 0
 | 0x1a080a | Ritorno dalla preparazione del trasferimento a 0x19afee | 0x007f0001 |
 | 0x1a0818 | OR con 0x01700022 | 0x017f0023 |
 | 0x1a0826 | Comando 0x223a0011 scritto a 0x6300000c | 0x017f0023 |
-
 
 [D90AtamCommandMask.java](../ghidra/D90AtamCommandMask.java) esegue in continuità dalla prima istruzione di 0x1a07ae, con registri di periferica e richiesta di un'unità in RAM sintetica. Nei due casi accettati la maschera iniziale è 0 oppure 0x80000002: nel secondo il bit 0x02 era già presente e viene conservato. La prova verifica anche la parola a 0x63000034 dopo le due OR, il comando ancora assente a 0x1a0818 e il selettore 0x22 al ritorno. Con bit 0 di 0x63000024 impostato, il primo tentativo raggiunge 0x1a08aa conservando le due parole di controllo e le sentinelle di comando e selettore. La prova stabilisce quando il firmware predispone la maschera. L'evento che fa comparire 0x02 nella parola a 0x63000030 resta da identificare.
 
@@ -486,7 +479,6 @@ La chiamata a 0x19d8dc prepara `0xf1ff01ff`, comprendente il bit 0x02. Questo è
 
 Esecuzione: Ghidra 12.1.4, progetto B esistente aperto con `-readOnly -noanalysis`, script passato con `-postScript D90StatusCandidates.java`; log locale `work/status-candidates.log`. Nessun WARN, ERROR o eccezione nel log esaminato. Non sono state eseguite nuove prove emulative in questa fase. Il metodo non segue basi in altri registri, chiamate precedenti, percorsi attraverso salti o riferimenti fuori dall'intervallo. Una sequenza decodificabile può essere dato anziché codice: le finestre nuove richiedono conferma del contesto e dei chiamanti. Prossimo passo: risalire al contesto di 0x19d8c6 e al consumo della lettura a 0x19da9a. L'origine fisica dell'interrupt resta aperta.
 
-
 ## AB-72 · La scrittura ampia dello stato segue la cancellazione delle maschere
 
 Componente B, campione AB-1, analisi del 5 novembre 2026. La scrittura a 0x19d8dc di AB-71 appartiene alla routine 0x19d89c–0x19d91e. Prima della scrittura, a 0x19d8c4 viene chiamata 0x19f7da con R4=0xf1ff01ff. Questa routine complementa l'argomento e applica AND con 0x0e00fe00 alle parole 0x63000034 e 0x63000038, tramite 0x1a0122. Quindi cancella anche il bit 0x02 nella maschera del dispatcher, prima di scrivere 0xf1ff01ff a 0x63000030. Il seguito applica AND 0xffff00ff e OR 1 alla parola 0x6300002c, azzera i byte 0x6800cf16 e 0x6800cf15 e ritorna. All'inizio, se il bit 1 della mezza parola 0x5000000a è acceso, lo cancella.
@@ -545,7 +537,6 @@ Le due prove del prefisso e le quattro prove isolate del controllo passano. [D90
 ## AB-75 · Due uscite dalla prima attesa della preparazione
 
 Componente B, campione AB-1, 5 novembre 2026. La funzione 0x19e020 chiama 0x19e0fa a 0x19e026. Quest'ultima imposta con OR il bit 0x100 della parola a 0x63000100 (chiamata a 0x19e116), poi chiama 0x19d856, che richiama 0x404ae. Il corpo a 0x404ae carica in R4 la parola a 0x68000114 e ritorna: in questo tratto non richiede un servizio OS. Il valore iniziale viene conservato in R8; una variabile locale è impostata a 2.
-
 
 Prima di leggere il bit, a 0x19e152 viene chiamata 0x19d864 con R4=1000, R5=valore iniziale e R6=puntatore alla variabile locale. Il corpo di AB-72 confronta la differenza fra il valore corrente letto tramite 0x404ae e quello iniziale con la soglia: sotto soglia restituisce zero; a soglia raggiunta decrementa la variabile se non è zero e restituisce zero; quando è già zero restituisce uno. La natura e l'unità del valore a 0x68000114 restano da identificare, quindi 1000 non viene convertito in millisecondi.
 
@@ -607,7 +598,6 @@ Nel caso positivo verifica anche FP=0x81002000 e R12=0x1234. Non esegue 0x40bec,
 
 Log locali `work/delay-service.log` e `work/service85.log`. Ghidra 12.1.4, Temurin 21.0.13, programma B esistente in `-readOnly -noanalysis`. I quattro casi finali passano senza WARN, ERROR o eccezioni. Una prima esecuzione segnalava letture non inizializzate dei registri S e I in ANDCCR: lo script finale li inizializza esplicitamente a zero. Rimangono da studiare 0x40bec e 0x418a0, la costruzione reale del frame e il meccanismo che permette la ripresa della preparazione. Non è verificata alcuna durata temporale.
 
-
 ## AB-78 · Rimozione di un nodo dalla lista bidirezionale
 
 Componente B, campione AB-1, 6 novembre 2026. Il servizio -85 (AB-77) chiama 0x40bec con la struttura corrente in FP. Il servizio chiama 0x40bec a 0x40f48 e, dopo il ritorno, chiama separatamente 0x418a0 a 0x40f58. Quest'ultima legge i puntatori del nodo corrente agli offset +0 e +4, aggiorna il puntatore successivo del precedente e il puntatore precedente del successivo, quindi ritorna con AC=1. Se i due vicini coincidono, entra invece in un ramo che legge il valore a nodo+0xc e aggiorna la maschera globale a 0x68000004. Il ramo speciale non è coperto da AB-78.
@@ -668,7 +658,6 @@ Componente B, campione AB-1, 6 novembre 2026. La chiamata a 0x406ce verso 0x404f
 
 I quattro casi combinano i due valori della parola 12 con R12 iniziale zero o 0xdf. Al confine il risultato è rispettivamente zero o -33, per l'estensione del byte con segno; non si assegna un nome OS al codice. Il byte 0x46f, inizializzato a 0x55, diventa 0x10 con parola 12 zero e resta 0x55 con parola 12=0x80000000. Il limite è 50 passi per caso. Gli effetti periferici di 0x46f sono rappresentati esclusivamente in RAM sintetica.
 
-
 [D90SchedulerContext.java](../ghidra/D90SchedulerContext.java) stampa solo le finestre [0x404f8, 0x404fa) e [0x406c6, 0x406f6), evitando di trattare le tabelle e i dati adiacenti come codice. Log finale `work/os-return.log`: quattro casi passati, senza WARN, ERROR o eccezioni; Ghidra 12.1.4 e Temurin 21.0.13, programma B in `-readOnly -noanalysis`. Una prima esecuzione aveva segnalato flag N/Z/V/C non inizializzati in ANDCCR; lo script finale li inizializza esplicitamente a zero, oltre a S e I.
 
 È una prova separata dell'epilogo, non una continuazione con frame reale delle prove AB-80. Non dimostra la ripresa del task o della preparazione ATAM, la gestione di un interrupt pendente o l'esecuzione dello scheduler. Non è dimostrata l'assenza di modifiche runtime al codice. Prossimo passo: ricostruire la generazione e il consumo del frame dell'interrupt e il percorso associato alla scrittura del byte 1 a 0x44 (AB-79), senza presumere che tale scrittura abbia in RAM sintetica gli effetti della periferica reale.
@@ -728,7 +717,6 @@ I controlli previsti comprendono valori ILM ai due lati di 15/16, frame e sentin
 ## AB-85 · Correzione isolata di PS/ILM e confronto sui 32 valori
 
 6 novembre 2026. Questa prova riguarda il modello CPU Ghidra, non esegue firmware A/B e non introduce una patch Nikon. [build_fr60_ilm.py](../tools/build_fr60_ilm.py) prepara una copia locale del linguaggio, partendo esclusivamente dall'hash sorgente fr60.sinc di AB-83. Sostituisce esattamente tre espressioni: `PS[16,4] = ILM` con `PS[16,5] = ILM`, `ILM = PS[16,4]` con `ILM = PS[16,5]`, e la maschera STILM `0x0f` con `0x1f`. Copia i file ausiliari necessari e assegna l'ID sperimentale `fr60:BE:16:d90-ilm5`. Non registra il linguaggio globalmente, non sovrascrive directory esistenti e rifiuta sorgenti con hash diverso. I file Ghidra generati restano locali, fuori dal repository.
-
 
 Hash SHA-256 del fr60.sinc corretto: `8ee76f11cf417fd86f723acad4e864ccf9b67f9796f7d4d4e7f2e77fd325a857`. L'hash della sorgente installata dopo la prova resta `b163bf22c9d5f260f9b2c22bde2d45eb18720968c0fce84214c48edfb792f6f0`. La compilazione con lo Sleigh della stessa Ghidra termina con successo, segnalando quattro costruttori NOP; questo avviso del compilatore non attesta un difetto delle prove ILM e non viene nascosto.
 
@@ -791,7 +779,6 @@ Al confine 0x406b6 verifica il frame software di 72 byte a 0x81003fb0: tutte le 
 
 Dopo il salto esplicito del servizio, l'epilogo arriva a RETI con SP=SSP=0x81003ff8. Il metodo AB-87 esegue RETI e aggiorna esplicitamente SSP. Il test verifica PC=0x19e066, SP=SSP=0x81004000, PS/ILM/I/S iniziali, i 17 registri recuperati e R12 esteso con segno (zero oppure -33). Controlla due sentinelle a 0x81003fa4 e 0x81004000. Il byte 0x46f, rappresentato esclusivamente in RAM sintetica, termina a 0x1e se il selettore salvato conserva il bit 31, altrimenti a 0x10. Non esegue l'istruzione al PC di ritorno.
 
-
 Prima di ciascun passo delle fasi prefisso/epilogo, lo script esamina il p-code disassemblato e rifiuta varnode di registro che si sovrappongano agli offset 8–15 dello spazio registri, dedicati a SSP/USP nel linguaggio utilizzato. Le **1480 istanze di passo** esaminate non contengono tali accessi diretti. La scansione è limitata ai percorsi effettivamente provati e al p-code restituito per ciascun passo, non a tutto il firmware; RETI finale è gestita separatamente da AB-87. Non esclude dipendenze indirette non rappresentate nel modello o modifiche runtime.
 
 Log locale `work/firmware-context.log`: 32 casi superati, 1480 istanze controllate, nessun WARN, ERROR o eccezione. Ghidra 12.1.4, Temurin 21.0.13, programma B `-readOnly -noanalysis`. Restano espliciti i due adattamenti del banco di prova (INT e sincronizzazione SSP), la correzione PS/ILM e il salto del servizio. Non sono coperti S=1, interrupt annidati, periferiche reali, scheduler, temporizzazione o ripresa effettiva di un task Nikon. Prossimo passo: includere dispatcher e servizio -85 con liste sintetiche coerenti, eliminando il salto manuale da 0x406b6 a 0x406c6.
@@ -851,7 +838,6 @@ Il percorso a 0x40a72 carica la sentinella, legge il primo nodo e, se presente, 
 | 2 | 1, 0, -1 | 3 |
 
 Sono **tre cicli di vita e sei invocazioni totali**, non sei scenari indipendenti né sei interrupt hardware. Il trasferimento verificato avviene quando il valore passa sotto zero, non quando raggiunge zero. Non se ne deduce una durata: mancano origine e frequenza delle invocazioni e convenzione temporale della coda.
-
 
 Dopo ogni invocazione il test controlla entrambi i collegamenti di nodo e sentinelle, nodo+0x14, nodo+8 e maschera globale. Prima del trasferimento il nodo resta nella lista sorgente e nodo+8 resta 0x20004; dopo, la sorgente è vuota, il nodo è nella destinazione, nodo+8=0 e la maschera è 0x40000000. Controlla il passaggio per 0x4186e e per la funzione a 0x404fe (RET nel programma), la parola nodo+0x20 invariata a 0x12345555, SP ripristinato a 0x81004000 e byte 0x68000132=0xb5. I byte RAM 0x44 e 0x46f restano 0x55 prima del trasferimento e diventano rispettivamente 1 e 0x1e dopo. Il test non sostituisce le chiamate firmware; non applica adattatori INT o SSP, perché esegue un segmento isolato senza INT/RETI.
 
@@ -913,7 +899,6 @@ Componente B, campione AB-1, 6 novembre 2026. [D90QueueSourceScan.java](../ghidr
 
 Nel percorso d'avvio già contestualizzato in AB-24–AB-29, 0x40738 carica 0x4046a in R12 e 0x4073e chiama R12. La routine salva RP, scrive byte 0x12 a 0x448, halfword 0x9e34 a 0x48 e halfword 0x1b a 0x4e; poi a 0x40484 chiama la funzione 0x100936. Il codice successivo recupera RP e ritorna, ma la prova di questo passaggio si ferma prima di tale chiamata. L'indirizzo 0x4e coincide con quello scritto dal gestore del vettore 0x18 (AB-92); questo collega i percorsi tramite lo stesso indirizzo, non identifica da solo il circuito o una frequenza.
 
-
 [D90QueueSourceControl.java](../ghidra/D90QueueSourceControl.java) esegue sei casi in RAM sintetica sul programma B originale:
 
 | Percorso | Input e verifiche |
@@ -972,7 +957,6 @@ A 0x40ef0 il servizio copia R4 in FP, legge una halfword senza segno a FP+2 in R
 Ogni caso controlla la voce di tabella, il passaggio nel servizio, SP finale=0x81004000 e il blocco di input interamente invariato. Le varianti dei primi due byte non cambiano l'esito. In questa prova l'epilogo non estende con segno R12: 0xdf è il valore locale osservato, non un codice già trasformato in -33 dal dispatcher. Il limite è 60 passi per scenario.
 
 Questo risolve la domanda delimitata di AB-94: la sentinella 0x5a5a nei primi due byte del blocco di avvio non viene letta dal corpo di questo servizio. Gli altri sei byte, che il prefisso scrive a zero, sono quelli usati per impostare il contatore. Il dato non dimostra un bug e non giustifica attribuire ai byte ignorati un significato non osservato. Non si afferma che gli stessi byte siano ignorati da ogni altra routine firmware.
-
 
 Log finale `work/service83.log`: 16 casi superati senza WARN, ERROR o eccezioni; Ghidra 12.1.4, Temurin 21.0.13, programma B originale `-readOnly -noanalysis`. Non viene eseguita INT, non si prepara il frame CPU completo e non si prosegue oltre 0x406c6. È una prova separata da AB-94, con blocco e contatore predisposti direttamente. Restano da verificare il passaggio continuo dall'avvio attraverso INT/servizio/RETI, i callee successivi di 0x100936 e l'identità fisica dei registri configurati. Prossimo passo: collegare il prefisso AB-94 al servizio e al suo ritorno mediante gli adattamenti espliciti già verificati, prima di attraversare i callee successivi.
 
@@ -1035,7 +1019,6 @@ Il builder verifica `fr60.sinc`, `fr60.slaspec`, `fr60.pspec`, `fr60.cspec`, `fr
 
 Verifica Python: 11 test superati, di cui quattro nuovi metodi sul builder con input sintetici (cinque sottocasi di alterazione, file mancante, output interno alla sorgente, costruzione valida/digest e rifiuto di output esistente). Questi test non validano il linguaggio FR60. La copia reale `work/fr60-ilm5-review` è stata costruita dai cinque input installati verificati; la compilazione riporta il consueto avviso di quattro costruttori NOP.
 
-
 Riesecuzione locale Ghidra 12.1.4 / Temurin 21.0.13, programma B in `-readOnly -noanalysis`, log `work/review-ab85-ab86-ab97-final.log`: AB-85 128 sequenze, AB-86 20 positivi e sei rifiuti, AB-97 otto scenari e 5272 passi controllati, senza WARN o ERROR nel log finale. La prima esecuzione (`work/review-ab85-ab86-ab97.log`) aveva segnalato registri non inizializzati nelle nuove letture di controllo dei casi negativi; il banco ora li inizializza esplicitamente. Restano i limiti di RAM periferica sintetica, adattamento INT/SSP esplicito e assenza di temporizzazione/hardware. Non sono state rieseguite tutte le prove AB-78–AB-97 e non è una riproduzione indipendente su un'altra macchina.
 
 
@@ -1095,7 +1078,6 @@ Prossimo passo: seguire le chiamate 0x4071a–0x40728 e verificare come trasform
 Componente B, campione AB-1, 9 novembre 2026. [D90OsInitializationContext.java](../ghidra/D90OsInitializationContext.java) conserva il disassemblato `[0x408be,0x40a56)`, il contesto helper `[0x41534,0x41630)` e intestazioni originali. Il termine OS descrive il ruolo software osservato, non identifica il sistema operativo commerciale o i nomi originali degli oggetti.
 
 | Chiamata nel blocco d'avvio | Routine | Tabella | Primo halfword | Passo in byte |
-
 |---|---|---|---:|---:|
 | 0x4071a | 0x408be | 0x5c40c | 38 | 28 |
 | 0x4071c | 0x40906 | 0x5c854 | 49 | 16 |
@@ -1156,7 +1138,6 @@ Componente B, campione AB-1, 9 novembre 2026. [D90OsInitializationRemaining.java
 I valori delle intestazioni originali devono corrispondere alla tabella AB-101. La routine 0x40906 usa 49 descrittori a passo 16 da 0x5c858 e destinazioni nell'intervallo `[0x680007f0,0x68000b00)`; 0x4092c usa 22 descrittori a passo 16 da 0x5cb6c e destinazioni in `[0x68000b00,0x68000c60)`. I puntatori di destinazione D vengono letti dai descrittori T originali, verificati allineati e nei rispettivi intervalli. Campi finali attesi:
 
 | Offset D | 0x40906 | 0x4092c |
-
 |---|---|---|
 | +0 e +4 | parole D (autoriferimenti) | parole D (autoriferimenti) |
 | +8 | halfword da T+0xc | parola da T+0xc |
@@ -1219,7 +1200,6 @@ Log `work/os-initialized-interrupt.log`: otto scenari superati, **102672 istanze
 Le liste d'attesa iniziali sono vuote: questa prova non verifica un nuovo trasferimento di nodi in attesa, lo scheduler o l'esecuzione dei contesti. Non determina periferica, cadenza, accettazione hardware o avvio completo. Prossima indagine: seguire le istruzioni da 0x40740 per identificare il passaggio al primo contesto e le sue precondizioni, prima di estendere l'emulazione allo scheduler.
 
 
-
 ## AB-107 · Selezione iniziale e confine dello stack utente
 
 Componente B, campione AB-1, 9 novembre 2026. [D90StartupDispatchBoundary.java](../ghidra/D90StartupDispatchBoundary.java) estende AB-106: dopo il ritorno dell'interrupt forzato a 0x40740 esegue nove istruzioni originali, fermandosi **prima di MOV R0,USP a 0x407ce**. Il banco non modifica memoria o registri fra questi nove passi.
@@ -1278,7 +1258,6 @@ Componente B, campione AB-1, 10 novembre 2026. [D90StartupContextRestore.java](.
 Il test salva gli 80 byte del contesto `[0x68000ed0,0x68000f20)` prima del ripristino. Le due prime parole vengono lette con pop e trasferite sullo stack supervisore dalle istruzioni originali a 0x407d8/0x407da. Il frame finale a 0x81003ff8 contiene **PC=0x407ee e PS=0x001f0030**. I 18 registri sono confrontati con le parole successive del contesto, nell'ordine RP, MDL, MDH, R0–R12, AC, FP; vengono recuperati dalle istruzioni originali LD/LDM. Questa prova confronta il ripristino con lo stato costruito, senza derivare nuovamente ogni valore dalle tabelle come AB-104.
 
 Al confine finale: PC=0x407ea, S=0, SP=SSP=0x81003ff8, USP=0x68000f20. Si confrontano integralmente i 3872 byte della regione OS `[0x68000000,0x68000f20)` e i 40 byte del contesto esterno a 0x8f991204 con lo stato precedente al ripristino; restano invariati. Il frame PC/PS è verificato dopo i push e alla fine, insieme alle guardie di quattro byte a 0x81003ff4 e 0x81004000. Non è una traccia di tutte le scritture né un controllo di tutta la memoria.
-
 
 Log `work/startup-context-restore.log`: **otto scenari superati**, senza WARN/ERROR/eccezioni, Ghidra 12.1.4, programma B `-readOnly -noanalysis`, linguaggio isolato ILM AB-85. Il contatore ereditato riporta 102816 passi ordinari controllati, 72 oltre AB-107. Sono inoltre eseguite separatamente cinque istruzioni per scenario (MOV USP e quattro istruzioni CCR adattate), escluse da quel contatore, come già INT/RETI dei segmenti precedenti. Le righe ereditate AB-97/105/106/107 descrivono i rispettivi punti intermedi; il riepilogo AB-110 e le asserzioni definiscono il confine finale effettivo.
 
@@ -1339,7 +1318,6 @@ Dopo la ricerca, il listato aggiunge 4 a R12 e moltiplica per otto il risultato 
 - PC=0x407ee e S=1, controllo corrente 0x680007c4, bitmap 0x80000000;
 - sentinella 0x68000008/0x6800000c collegata in entrambe le direzioni al candidato 0x680001ec, e collegamenti inversi del candidato;
 - campo candidato +0x18 (0x68000204)=0x8f991204, frame con PC=0x1000ac e PS=0x001f0030;
-
 - byte 0x68000130 e 0x68000131 entrambi zero;
 - voce vettore 0xdff00→0x40d44 letta dal programma originale.
 
@@ -1399,7 +1377,6 @@ Ghidra 12.1.4, profilo ILM AB-85, log locale work/dispatch-prefix.log. Otto casi
 ## AB-119 · Salvataggio del contesto uscente
 
 Componente B, campione AB-1, 11 novembre 2026. [D90DispatchSave.java](../ghidra/D90DispatchSave.java) prosegue nello stesso emulatore da AB-118 a 0x40e2a. Con bitmap 0x80000000 e SRCH1 adattata, il firmware raggiunge 0x40e62 con candidato 0x680001ec e controllo corrente 0x680007c4. Le store successive completano sullo stack utente il prefisso R12/AC/FP già verificato da AB-118.
-
 
 Il frame uscente occupa 80 byte da 0x68000ed0. In ordine di indirizzo crescente contiene PC del ciclo (0x407ee), PS (0x1f0030), RP, MDL, MDH, R0–R11, R12, AC e FP. PC e PS provengono dal frame supervisore sintetico. Dopo le istruzioni che cambiano S, il banco seleziona esplicitamente lo stack a 0x40e6e e 0x40e74. La store a 0x40e78 scrive 0x68000ed0 nel campo corrente a 0x680007dc. Arresto a 0x40e7a.
 
@@ -1462,7 +1439,6 @@ Il nome del blocco Ghidra “ram” riportato in AB-124 è il nome del blocco im
 
 Log locale work/candidate-source.log, Ghidra 12.1.4, programma d90.hex con -readOnly -noanalysis. Entrambi i confronti integrali superati, senza WARN/ERROR. Il banco non esegue il candidato. Prossimo obiettivo: importare una finestra verificata del prologo nel programma transitorio, estendere lo stack per le sue push e fermarsi prima della prima chiamata.
 
-
 ## AB-126 · Prime istruzioni del candidato
 
 Componente B del campione AB-1, 11 novembre 2026. [D90CandidatePrologue.java](../ghidra/D90CandidatePrologue.java) continua direttamente dal ritorno AB-123, importando la finestra originale [0x1000ac,0x1000d2) verificata da AB-125. Gli 80 byte di stack già disponibili bastano per la prova.
@@ -1523,7 +1499,6 @@ Il codice successivo legge due mezze parole a 0x8f533008 e +2 e confronta la dif
 
 Nel seguito i byte di stato a 0x8f53300c controllano correzioni o chiamate aggiuntive. Sono visibili chiamate a 0x13a802, 0x13a814, 0x1ad966 e 0x1ae4c0. Il codice modifica campi relativi a 0x8f53c4d4 e, in percorsi condizionati, aree a 0x8f53da54, 0x8f53d972, 0x8f9237ac, 0x8f922768, 0x8f94e116 e 0x8f94cc9c. A 0x13a374 il codice prepara una copia di 0x270 byte da 0x8f6e3f2c a 0x8f6e419c. Prima del ritorno azzera il byte a 0x8f549bee.
 
-
 Ghidra 12.1.4, programma B in sola lettura, log locale work/third-call-context.log. Il listato finale raggiunge la RET senza WARN/ERROR. La prima estrazione aveva raggiunto il limite di 160 istruzioni prima del ritorno; il limite è stato portato a 320. Questi risultati derivano dal disassemblato statico. La routine e i suoi helper restano da eseguire nel banco.
 
 ## AB-132 · Lettura delle due sorgenti e descrittori
@@ -1582,7 +1557,6 @@ Componente B del campione AB-1. [D90ThirdCallCopies.java](../ghidra/D90ThirdCall
 I due banchi sintetici contengono payload distinguibili per banca, indice e posizione, seguiti da marcatore e terminatore. Il tipo 0 è presente in entrambe le banche, il tipo 1 solo nella prima e il tipo 2 solo nella seconda. Le altre 23 voci sono assenti. I byte di stato partono da zero. La seconda sequenza vale 0xfffe. La prima è calcolata modulo 65536, con differenze 0, 1, 0x7ffe, 0x7fff, 0x8000, 0x8001, 0xfffe e 0xffff distribuite sugli otto scenari.
 
 Per il tipo 0 il payload proviene dalla prima banca nei quattro casi sotto 0x8000 e dalla seconda negli altri quattro, inclusa la soglia esatta. I tipi 1 e 2 provengono sempre dall'unica banca disponibile. Il confronto copre tutti i 240, 160 e 234 byte delle tre destinazioni e un byte di guardia per lato. A fine ciclo i primi tre byte di stato valgono zero e i successivi 23 valgono uno.
-
 
 Log locale work/third-call-copies.log, Ghidra 12.1.4, programma B in sola lettura, profilo ILM AB-85. Otto scenari superati. L'arresto precede le elaborazioni condizionali dei byte di stato. I dati delle due banche sono input del banco e la provenienza fisica resta aperta.
 
@@ -1644,7 +1618,6 @@ Con flag impostato la mezza parola viene azzerata; con flag zero è conservata. 
 
 Sedici casi superati con Ghidra 12.1.4 e profilo ILM AB-85, programma B in sola lettura. Log work/type24-context.log e work/type24-return.log. Una prima versione del banco riusava R9 dopo il ritorno precedente, che lo aveva ripristinato al valore del candidato: il secondo caso leggeva da una base errata. La versione finale ripristina R9 prima di ogni variante e il log finale è privo di WARN/ERROR. Le varianti del flag sono ingressi sintetici dal confine AB-140. La verifica chiude l'epilogo delimitato; restano da collegare tutti i rami su un singolo insieme coerente di record.
 
-
 ## AB-142 · Terza chiamata continua
 
 Componente B, campione AB-1. [D90ThirdCallIntegrated.java](../ghidra/D90ThirdCallIntegrated.java) eredita il confine AB-130 a 0x1000da. Prima della CALL il banco prepara 26 destinazioni riempite con 0xbb, la memoria di lavoro azzerata e due sorgenti sintetiche con marcatore 0xaa55 e terminatore 0xffff. In quattro scenari il primo banco contiene i 13 tipi pari e il secondo contiene solo il marcatore e il terminatore. Negli altri quattro i 13 tipi dispari sono nel secondo banco. Il payload varia per scenario, tipo e posizione. Le lunghezze e le destinazioni provengono dai descrittori originali AB-132.
@@ -1705,7 +1678,6 @@ Otto casi superati in Ghidra 12.1.4 con programma B in sola lettura. Log locale 
 
 Componente B del campione AB-1. [D90Service23Context.java](../ghidra/D90Service23Context.java) esamina il database Ghidra esistente in sola lettura con `-noanalysis`, usando pseudo-disassemblaggio limitato perché nell'elenco analizzato non c'è una funzione che contenga 0x414da. Questa osservazione descrive la mappa delle funzioni del database, non l'assenza di codice nel firmware. Log locale work/service23-context.log; Ghidra 12.1.4, Java Temurin 21.0.13. I blocchi esaminati terminano ai ritorni previsti e non producono WARN/ERROR nel log.
 
-
 Il servizio salva RP, passa 0x5c40c e R4 a 0x41852 per selezionare un descrittore, poi legge i campi +0x10 e +0x14 come R6 e R7 e il primo campo del descrittore come puntatore di controllo D. Per R4=28 la tabella ha intestazione count=38 e stride=28; il record selezionato è a 0x5c704: +0x00=0x680005e0, +0x04=0x001c000d, +0x08=0, +0x0c=0x40000000, +0x10=0x0011201a, +0x14=0x8f9b0204, +0x18=0. L'helper decrementa l'indice e calcola la base del record con la stride dichiarata.
 
 Con i valori d'ingresso già verificati in AB-147 (R4=28, R5=0), il percorso principale confronta D con la parola a 0x68000000. Se coincidono, verifica bit e byte a 0x68000131 e nell'area adiacente, con un ramo che scrive R5 e il byte 1 a 0x44; il significato di questi registri/periferiche e le condizioni pratiche restano da identificare. Il flusso poi verifica il bit 0x10 a D+8. Se manca, torna R12=0xc1. Se è presente, chiama 0x41534.
@@ -1765,7 +1737,6 @@ Componente B di AB-1. Negli otto stati AB-154 il candidato esegue la settima CAL
 Il controllo corrente 0x680001ec coincide con la testa della lista 1 in tutti gli otto casi. La lista 4 punta al controllo del record 8. Nei quattro casi con il record 28 in lista 13 la bitmap vale 0x90080000. Negli altri quattro la lista 13 è vuota e la bitmap vale 0x90000000. In entrambi i casi il primo bit impostato a partire da sinistra corrisponde alla lista 1. Applicando il criterio di ricerca AB-116/117 a questa istantanea si ritroverebbe quindi il controllo corrente. Questa deduzione presuppone lo stesso percorso del dispatcher. Il punto in cui il firmware cambia scelta resta da individuare.
 
 Il listato dei due ingressi preparati mostra che il record 8 (0x10fcce) salva R8 e RP, esegue ENTER, carica 0x60 in R8 e chiama 0x10fd26. Il record 28 (0x11201a) salva R8 e RP, esegue ENTER e chiama 0x112244. Questi due prefissi sono osservazioni statiche. [Script per i tre prefissi](../ghidra/D90PreparedTaskEntries.java)
-
 
 Ghidra 12.1.4, programma B in sola lettura, profilo AB-85 per il banco emulato. Log locali `work/prepared-task-entries.log` e `work/seventh-call-entry.log`. Prossima indagine mirata ai punti di attesa o uscita del candidato che possono cambiare il controllo in testa alla lista 1.
 
@@ -1828,7 +1799,6 @@ Otto scenari, ciascuno con entrambi gli esiti della seconda lettura. Ghidra 12.1
 
 Componente B di AB-1. Dall'ingresso di AB-161 a 0x41bfc il servizio -170 legge il controllo corrente 0x68000270, risolve l'oggetto 3 e chiama 0x40cd0 con R4=100. Al ritorno a 0x41c46, FP indica l'oggetto a 0x68000b20. La parola a +8 vale 0x80. In modalità 2, il codice a 0x41c5a–0x41c5e verifica l'intersezione con la maschera 2. Il risultato è zero e il firmware prosegue a 0x41c60. A 0x41c6a scrive la maschera 2 nella parola a task+0x14 e a 0x41c6c scrive la modalità 2 nella mezza parola a task+0x0e. Il confine verificato è 0x41c76, prima della CALL:D a 0x41ecc e della sua istruzione nel delay slot.
 
-
 Il banco confronta la parola utente indicata da R4 all'ingresso con quella al confine finale. I valori coincidono. Il confronto riguarda i due estremi e lascia aperti eventuali accessi intermedi. Il chiamante contiene una scrittura esplicita `ST AC,@R4` a 0x10fdb8 dopo INT (listato AB-158). Per attribuirla alla stessa parola occorre seguire il ritorno e controllare R4 e AC a quel sito. Anche l'inserimento in lista e l'unità temporale del valore 100 restano aperti per questo percorso.
 
 [Prova AB-162](../ghidra/D90Record8WaitPrefix.java). Il banco usa il profilo AB-85, il database B in sola lettura e le stesse otto combinazioni di AB-161. Gli ingressi INT e i valori periferici mantengono gli adattamenti delle prove precedenti. Log locale `work/record8-wait-prefix.log`.
@@ -1888,7 +1858,6 @@ Il salto BP:D a 0x40b90, con store nel delay slot a 0x40b92, prosegue a 0x40be4 
 | Testa 0x68000128, parole +0/+4 | Entrambe puntano alla testa, lista vuota |
 | Testa dell'oggetto 3 a 0x68000b20, parole +0/+4 | Entrambe puntano alla testa, lista vuota |
 | Testa dei pronti 4 a 0x68000020, parole +0/+4 | Entrambe 0x68000270 |
-
 | Task 8, parole +0/+4 | Entrambe 0x68000020 |
 | Task 8, parola +8 | Zero |
 | Bitmap dei pronti | Acquisisce il bit 0x10000000 |
