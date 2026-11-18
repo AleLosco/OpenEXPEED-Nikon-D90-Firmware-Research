@@ -26,7 +26,7 @@ Le percentuali sono stime di copertura rispetto agli obiettivi di ciascuna area.
 | Emulazione della fotocamera | 20% | Segmenti OS/periferica collegati sulla stessa memoria; INT/SSP espliciti e RAM sintetica. Mancano reset completo, scheduler, periferiche e tempi realistici |
 | Patch sperimentali validate | 5% | Nessuna patch utile verificata sulla fotocamera; mancano candidato, confronto prima/dopo e procedura di recupero |
 
-Le stime sono indicative e possono cambiare quando si amplia o si restringe il perimetro. Le prove fino ad AB-160 comprendono analisi statica, routine isolate e segmenti collegati con confini sintetici espliciti. Il percorso per R4=28/R5=0 comprende il ritorno al chiamante utente del servizio OS -23 in RAM sintetica. La stima complessiva non è una media aritmetica delle aree. Le prove sui registri della periferica usano RAM sintetica e non identificano ancora la sorgente fisica dell’interrupt. Le revisioni indipendenti del 4 e 11 novembre hanno segnalato rilievi di bassa severità poi corretti; i loro limiti sono registrati nelle sezioni tecniche.
+Le stime sono indicative e possono cambiare quando si amplia o si restringe il perimetro. Le prove fino ad AB-167 comprendono analisi statica, routine isolate e segmenti collegati con confini sintetici espliciti. Il percorso per R4=28/R5=0 comprende il ritorno al chiamante utente del servizio OS -23 in RAM sintetica. La stima complessiva non è una media aritmetica delle aree. Le prove sui registri della periferica usano RAM sintetica e non identificano ancora la sorgente fisica dell’interrupt. Le revisioni indipendenti del 4 e 11 novembre hanno segnalato rilievi di bassa severità poi corretti; i loro limiti sono registrati nelle sezioni tecniche.
 
 La revisione indipendente AB-78–AB-97 ha individuato due lacune di robustezza/riproducibilità, corrette e verificate localmente: PC dispari nell’adattatore INT e verifica incompleta degli input del linguaggio sperimentale. Test e riesecuzioni mirate sono documentati nella [rettifica AB-85/AB-86](docs/communication-topology.md#rettifica-di-riproducibilità-ab-85ab-86--6-novembre-2026). Quelle correzioni non avevano modificato le stime: riguardavano il banco di prova, non nuova copertura hardware.
 
@@ -47,7 +47,7 @@ AB-148–153 approfondiscono un tratto dell'inizializzazione e i suoi due inseri
 
 ## Priorità attuale
 
-AB-160 verifica 16 preparazioni delle modalità software 1/3 del task 8 e il ritorno del servizio -47 con le due maschere dell'oggetto 3. I bit interessati erano già zero nello stato ereditato. La prossima priorità è identificare precondizioni e struttura degli argomenti della richiesta -170 a 0x10fdb4, quindi seguirne il percorso delimitato. [Evidenze AB-160](docs/communication-topology.md#ab-160--due-preparazioni-del-task-8-e-servizio--47)
+AB-167 verifica che il nodo conserva l'attesa a zero e scade al passaggio successivo a −1. Il task 8 lascia la lista dell'oggetto 3 e rientra nei pronti 4, con campo di stato +0x22 pari a 0x00ab. Il banco ha impostato il contatore a 1 per isolare i due confini. La prossima priorità è verificare la sequenza continua dal valore 100 prodotto dal firmware, mantenendo liste e contatore senza reimpostazioni intermedie. [Evidenze AB-167](docs/communication-topology.md#ab-167--confine-zero-e-reinserimento-del-task-8-tra-i-pronti)
 
 ## Contesto e progressione della ricerca
 
